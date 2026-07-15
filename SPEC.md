@@ -1,7 +1,7 @@
 # СобериДом — Техническая спецификация
 
-> Версия: 1.2 | Дата: 2026-07-15 | Статус: Production-ready
-> Источник требований: PROJECT_IDEA.md v1.4 | v1.1: реальные форматы домов; анатомия шага «как у прораба»; Этап 0 (быт и подготовка) | v1.2: тренировки для новичков, обязательный шаг ТБ, инструменты купить/арендовать
+> Версия: 1.3 | Дата: 2026-07-16 | Статус: Production-ready
+> Источник требований: PROJECT_IDEA.md v1.4 | v1.1: реальные форматы домов; анатомия шага «как у прораба»; Этап 0 (быт и подготовка) | v1.2: тренировки для новичков, обязательный шаг ТБ, инструменты купить/арендовать | v1.3: is_admin() создаётся в 2.1 после profiles (иначе ошибка при check_function_bodies=on); добавлен маршрут /auth/confirm (обработчик ссылок из писем Supabase)
 > Аудитория документа: AI-агенты (Claude Code). Максимальная конкретность, без TODO.
 
 ---
@@ -41,6 +41,7 @@
 | /projects/[slug] | Витрина проекта: 3D, планировки, конфигуратор, фундамент, предсмета | Публичный |
 | /projects/[slug]/buy | Оформление покупки | user |
 | /auth/login, /auth/register, /auth/reset | Аутентификация | Публичный |
+| /auth/confirm | Обработчик ссылок из писем Supabase (подтверждение email, восстановление пароля): verifyOtp/exchangeCodeForSession → автологин и возврат по next | Публичный |
 | /my | Мои проекты (купленные) | user |
 | /my/[purchaseId] | Хаб купленного проекта | user (владелец) |
 | /my/[purchaseId]/build | Конструктор сборки (этапы→шаги) | user (владелец) |
@@ -250,11 +251,9 @@
 
 ```sql
 create extension if not exists moddatetime schema extensions;
--- Хелпер: текущий пользователь admin?
-create or replace function public.is_admin() returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
-$$;
+-- Хелпер is_admin() создаётся в 2.1 после таблицы profiles: функция ссылается на
+-- profiles, и при check_function_bodies=on (значение по умолчанию) её создание
+-- до таблицы завершится ошибкой.
 ```
 
 ### 2.1 profiles — профили пользователей
@@ -282,6 +281,13 @@ begin
 end; $$;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Хелпер: текущий пользователь admin? Создаётся после profiles (функция ссылается
+-- на таблицу) и до RLS-политик ниже (политики ссылаются на функцию).
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from profiles where id = auth.uid() and role = 'admin');
+$$;
 
 alter table profiles enable row level security;
 create policy "profiles_select_own" on profiles for select using (id = auth.uid() or is_admin());
