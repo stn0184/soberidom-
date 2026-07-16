@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      bom_items: {
+        Row: {
+          applies_when: Json
+          id: string
+          material_id: string
+          project_id: string
+          qty: number
+          stage_id: string
+        }
+        Insert: {
+          applies_when?: Json
+          id?: string
+          material_id: string
+          project_id: string
+          qty: number
+          stage_id: string
+        }
+        Update: {
+          applies_when?: Json
+          id?: string
+          material_id?: string
+          project_id?: string
+          qty?: number
+          stage_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bom_items_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bom_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bom_items_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      config_options: {
+        Row: {
+          group_key: string
+          id: string
+          is_default: boolean
+          label: string
+          option_key: string
+          project_id: string
+          sort: number
+        }
+        Insert: {
+          group_key: string
+          id?: string
+          is_default?: boolean
+          label: string
+          option_key: string
+          project_id: string
+          sort?: number
+        }
+        Update: {
+          group_key?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          option_key?: string
+          project_id?: string
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "config_options_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       countries: {
         Row: {
           code: string
@@ -29,6 +116,114 @@ export type Database = {
           code?: string
           currency?: string
           name?: string
+        }
+        Relationships: []
+      }
+      foundation_rules: {
+        Row: {
+          foundation: string
+          high_water: string
+          id: string
+          reason_points: Json
+          relief: string
+          soil: string
+          weight_class: string
+        }
+        Insert: {
+          foundation: string
+          high_water: string
+          id?: string
+          reason_points: Json
+          relief: string
+          soil: string
+          weight_class: string
+        }
+        Update: {
+          foundation?: string
+          high_water?: string
+          id?: string
+          reason_points?: Json
+          relief?: string
+          soil?: string
+          weight_class?: string
+        }
+        Relationships: []
+      }
+      house_projects: {
+        Row: {
+          area_m2: number
+          building_type: string
+          cover_image_url: string
+          created_at: string
+          currency: string
+          description: string
+          floors: number
+          footprint: string
+          gallery_urls: string[]
+          heating_options: string[]
+          id: string
+          isometric_fallback_url: string
+          layout_notes: Json
+          max_snow_region: number
+          model_glb_url: string
+          price_minor: number
+          rooms: number
+          slug: string
+          sp_compliant: boolean
+          status: string
+          style: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          area_m2: number
+          building_type: string
+          cover_image_url?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          floors: number
+          footprint: string
+          gallery_urls?: string[]
+          heating_options?: string[]
+          id?: string
+          isometric_fallback_url?: string
+          layout_notes?: Json
+          max_snow_region?: number
+          model_glb_url?: string
+          price_minor: number
+          rooms: number
+          slug: string
+          sp_compliant?: boolean
+          status?: string
+          style?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          area_m2?: number
+          building_type?: string
+          cover_image_url?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          floors?: number
+          footprint?: string
+          gallery_urls?: string[]
+          heating_options?: string[]
+          id?: string
+          isometric_fallback_url?: string
+          layout_notes?: Json
+          max_snow_region?: number
+          model_glb_url?: string
+          price_minor?: number
+          rooms?: number
+          slug?: string
+          sp_compliant?: boolean
+          status?: string
+          style?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -123,6 +318,54 @@ export type Database = {
         }
         Relationships: []
       }
+      parts: {
+        Row: {
+          applies_when: Json
+          color: string
+          cut_length_mm: number
+          id: string
+          material_id: string
+          part_code: string
+          project_id: string
+          qty: number
+        }
+        Insert: {
+          applies_when?: Json
+          color: string
+          cut_length_mm: number
+          id?: string
+          material_id: string
+          part_code: string
+          project_id: string
+          qty: number
+        }
+        Update: {
+          applies_when?: Json
+          color?: string
+          cut_length_mm?: number
+          id?: string
+          material_id?: string
+          part_code?: string
+          project_id?: string
+          qty?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parts_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           country_code: string
@@ -157,6 +400,59 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_tools: {
+        Row: {
+          alternative: string
+          approx_price_minor: number
+          approx_rent_day_minor: number | null
+          category: string
+          days_needed: number
+          id: string
+          name: string
+          project_id: string
+          reason: string
+          recommendation: string
+          sort: number
+          stage_codes: string[]
+        }
+        Insert: {
+          alternative?: string
+          approx_price_minor: number
+          approx_rent_day_minor?: number | null
+          category: string
+          days_needed: number
+          id?: string
+          name: string
+          project_id: string
+          reason: string
+          recommendation: string
+          sort?: number
+          stage_codes?: string[]
+        }
+        Update: {
+          alternative?: string
+          approx_price_minor?: number
+          approx_rent_day_minor?: number | null
+          category?: string
+          days_needed?: number
+          id?: string
+          name?: string
+          project_id?: string
+          reason?: string
+          recommendation?: string
+          sort?: number
+          stage_codes?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tools_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -273,6 +569,199 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "countries"
             referencedColumns: ["code"]
+          },
+        ]
+      }
+      stages: {
+        Row: {
+          applies_when: Json
+          code: string
+          delivery_wave: number
+          id: string
+          intro: string
+          project_id: string
+          sort: number
+          title: string
+        }
+        Insert: {
+          applies_when?: Json
+          code: string
+          delivery_wave?: number
+          id?: string
+          intro?: string
+          project_id: string
+          sort: number
+          title: string
+        }
+        Update: {
+          applies_when?: Json
+          code?: string
+          delivery_wave?: number
+          id?: string
+          intro?: string
+          project_id?: string
+          sort?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      step_materials: {
+        Row: {
+          id: string
+          material_id: string
+          qty: number
+          step_id: string
+        }
+        Insert: {
+          id?: string
+          material_id: string
+          qty: number
+          step_id: string
+        }
+        Update: {
+          id?: string
+          material_id?: string
+          qty?: number
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_materials_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      step_parts: {
+        Row: {
+          id: string
+          part_id: string
+          qty: number
+          step_id: string
+        }
+        Insert: {
+          id?: string
+          part_id: string
+          qty: number
+          step_id: string
+        }
+        Update: {
+          id?: string
+          part_id?: string
+          qty?: number
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "step_parts_part_id_fkey"
+            columns: ["part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "step_parts_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      steps: {
+        Row: {
+          actions: Json
+          applies_when: Json
+          common_mistake: string
+          difficulty: number
+          duration_min_pair: number | null
+          duration_min_solo: number | null
+          helpers_needed: number
+          hint: string
+          id: string
+          image_url: string
+          is_mandatory: boolean
+          is_practice: boolean
+          prep_text: string
+          safety_text: string
+          self_check: Json
+          sort: number
+          stage_id: string
+          title: string
+          tools: string[]
+          weather_note: string
+          why_text: string
+        }
+        Insert: {
+          actions?: Json
+          applies_when?: Json
+          common_mistake?: string
+          difficulty?: number
+          duration_min_pair?: number | null
+          duration_min_solo?: number | null
+          helpers_needed?: number
+          hint?: string
+          id?: string
+          image_url?: string
+          is_mandatory?: boolean
+          is_practice?: boolean
+          prep_text?: string
+          safety_text?: string
+          self_check?: Json
+          sort: number
+          stage_id: string
+          title: string
+          tools?: string[]
+          weather_note?: string
+          why_text?: string
+        }
+        Update: {
+          actions?: Json
+          applies_when?: Json
+          common_mistake?: string
+          difficulty?: number
+          duration_min_pair?: number | null
+          duration_min_solo?: number | null
+          helpers_needed?: number
+          hint?: string
+          id?: string
+          image_url?: string
+          is_mandatory?: boolean
+          is_practice?: boolean
+          prep_text?: string
+          safety_text?: string
+          self_check?: Json
+          sort?: number
+          stage_id?: string
+          title?: string
+          tools?: string[]
+          weather_note?: string
+          why_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "steps_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
           },
         ]
       }
