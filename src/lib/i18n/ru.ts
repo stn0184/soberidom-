@@ -626,6 +626,44 @@ export const ru = {
       },
     },
   },
+  build: {
+    title: 'Стройка по шагам',
+    stepOf: (n: number, total: number) => `Шаг ${n} из ${total}`,
+    breadcrumb: (n: number, name: string) => `Этап ${n} · ${name}`,
+    prep: 'Подготовьте',
+    take: 'Возьмите',
+    takeParts: 'Детали',
+    takeMaterials: 'Крепёж и расходники',
+    takeTools: 'Инструменты',
+    doTitle: 'Сделайте',
+    safety: 'Безопасность',
+    hint: 'Подсказка',
+    commonMistake: 'Частая ошибка',
+    selfCheck: 'Проверьте себя',
+    selfCheckHint: 'Отметьте все пункты — и кнопка «Готово» откроется. Это ваша приёмка работы.',
+    doneBtn: 'Готово, дальше →',
+    doneStep: 'Шаг пройден',
+    reopen: 'Вернуть шаг в работу',
+    backBtn: '← Назад',
+    practice: 'Тренировка',
+    practiceSkip: 'У меня есть опыт — пропустить',
+    mandatory: 'Пропустить нельзя',
+    duration: (solo: number | null, pair: number | null) => {
+      const fmt = (m: number) => (m >= 60 ? `${Math.floor(m / 60)} ч${m % 60 ? ` ${m % 60} мин` : ''}` : `${m} мин`);
+      const parts = [];
+      if (solo !== null) parts.push(`≈ ${fmt(solo)} одному`);
+      if (pair !== null) parts.push(`${fmt(pair)} вдвоём`);
+      return parts.join(' / ');
+    },
+    difficulty: (n: number) => '🔨'.repeat(Math.max(1, Math.min(3, n))),
+    helpers: (n: number) => `помощник ×${n}`,
+    offlineToast: 'Нет сети — отметка сохранена и отправится при подключении',
+    offlineBadge: 'Ждёт синхронизации',
+    qty: (n: number) => `${n} шт`,
+    cut: (mm: number) => `рез ${mm} мм`,
+    emptyTitle: 'Шагов пока нет',
+    emptyText: 'Контент проекта ещё наполняется — загляните позже.',
+  },
   buy: {
     title: 'Оформление покупки',
     configTitle: 'Ваша конфигурация',
