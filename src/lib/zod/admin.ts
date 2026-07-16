@@ -31,6 +31,7 @@ export const projectSchema = z.object({
   isometric_fallback_url: z.string(),
   status: z.enum(['draft', 'published']),
   sp_compliant: z.boolean(),
+  is_free: z.boolean(), // v1.5: бесплатный проект-эталон
 });
 export const projectUpdateSchema = projectSchema.partial();
 export type ProjectInput = z.infer<typeof projectSchema>;
@@ -40,6 +41,8 @@ export const stageSchema = z.object({
   sort: z.number().int(),
   code: z.string().trim().min(1),
   title: z.string().trim().min(1),
+  display_name: z.string(), // v1.5: человеческое имя для пользователя
+  color: z.enum(['red', 'green', 'yellow', 'blue', 'orange', 'purple']).nullable(), // v1.5
   intro: z.string(),
   delivery_wave: z.number().int().min(1).max(5),
   applies_when: appliesWhenSchema,

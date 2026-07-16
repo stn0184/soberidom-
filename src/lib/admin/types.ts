@@ -20,8 +20,9 @@ export type ProjectRow = Omit<
   layout_notes: LayoutNote[];
 };
 
-export type StageRow = Omit<Tables['stages']['Row'], 'applies_when'> & {
+export type StageRow = Omit<Tables['stages']['Row'], 'applies_when' | 'color'> & {
   applies_when: AppliesWhen;
+  color: PartInput['color'] | null; // v1.5: цветовая маркировка этапа
 };
 
 export type StepRow = Omit<

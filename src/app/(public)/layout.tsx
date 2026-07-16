@@ -23,9 +23,19 @@ export default async function PublicLayout({
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
-          <Link href="/" className="text-lg font-semibold">
-            {ru.common.appName}
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="text-lg font-semibold">
+              {ru.common.appName}
+            </Link>
+            <nav className="hidden items-center gap-4 text-sm sm:flex">
+              <Link href="/projects" className="hover:underline">
+                {ru.nav.projects}
+              </Link>
+              <Link href="/#how" className="hover:underline">
+                {ru.nav.how}
+              </Link>
+            </nav>
+          </div>
           {user ? (
             <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground">{user.email}</span>

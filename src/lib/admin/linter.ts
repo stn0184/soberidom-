@@ -12,6 +12,10 @@ const JARGON: ReadonlyArray<{ stem: string; word: string }> = [
   { stem: 'вылет', word: 'вылет' },
   { stem: 'свес', word: 'свес' },
   { stem: 'шпунт', word: 'шпунт' },
+  // v1.5 (SPEC 5.10): дополнение словаря
+  { stem: 'обвязк', word: 'обвязка' },
+  { stem: 'лаг', word: 'лага' },
+  { stem: 'стропил', word: 'стропила' },
 ];
 
 const EXPLAIN_WINDOW = 60;

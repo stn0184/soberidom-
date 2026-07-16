@@ -162,6 +162,7 @@ export type Database = {
           gallery_urls: string[]
           heating_options: string[]
           id: string
+          is_free: boolean
           isometric_fallback_url: string
           layout_notes: Json
           max_snow_region: number
@@ -187,6 +188,7 @@ export type Database = {
           gallery_urls?: string[]
           heating_options?: string[]
           id?: string
+          is_free?: boolean
           isometric_fallback_url?: string
           layout_notes?: Json
           max_snow_region?: number
@@ -212,6 +214,7 @@ export type Database = {
           gallery_urls?: string[]
           heating_options?: string[]
           id?: string
+          is_free?: boolean
           isometric_fallback_url?: string
           layout_notes?: Json
           max_snow_region?: number
@@ -576,7 +579,9 @@ export type Database = {
         Row: {
           applies_when: Json
           code: string
+          color: string | null
           delivery_wave: number
+          display_name: string
           id: string
           intro: string
           project_id: string
@@ -586,7 +591,9 @@ export type Database = {
         Insert: {
           applies_when?: Json
           code: string
+          color?: string | null
           delivery_wave?: number
+          display_name?: string
           id?: string
           intro?: string
           project_id: string
@@ -596,7 +603,9 @@ export type Database = {
         Update: {
           applies_when?: Json
           code?: string
+          color?: string | null
           delivery_wave?: number
+          display_name?: string
           id?: string
           intro?: string
           project_id?: string

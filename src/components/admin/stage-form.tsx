@@ -1,13 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FormField } from '@/components/admin/form-field';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
@@ -19,6 +26,7 @@ import { ru } from '@/lib/i18n/ru';
 const t = ru.admin.stages;
 const stageFormSchema = stageSchema.omit({ project_id: true, applies_when: true });
 type StageFormValues = z.infer<typeof stageFormSchema>;
+const NO_COLOR = 'none';
 
 export function StageForm({
   projectId,
@@ -44,12 +52,23 @@ export function StageForm({
           sort: stage.sort,
           code: stage.code,
           title: stage.title,
+          display_name: stage.display_name,
+          color: stage.color,
           intro: stage.intro,
           delivery_wave: stage.delivery_wave,
         }
-      : { sort: nextSort, code: '', title: '', intro: '', delivery_wave: 2 },
+      : {
+          sort: nextSort,
+          code: '',
+          title: '',
+          display_name: '',
+          color: null,
+          intro: '',
+          delivery_wave: 2,
+        },
   });
   const { errors, isSubmitting } = form.formState;
+  const color = useWatch({ control: form.control, name: 'color' });
 
   async function onSubmit(values: StageFormValues) {
     setServerError(null);
@@ -105,6 +124,29 @@ export function StageForm({
       </FormField>
       <FormField label={t.stageTitle} htmlFor="s-title" error={errors.title?.message}>
         <Input id="s-title" {...form.register('title')} />
+      </FormField>
+      <FormField label={t.displayName} htmlFor="s-dname" error={errors.display_name?.message}>
+        <Input id="s-dname" {...form.register('display_name')} />
+      </FormField>
+      <FormField label={t.color} error={errors.color?.message}>
+        <Select
+          value={color ?? NO_COLOR}
+          onValueChange={(v) =>
+            form.setValue('color', v === NO_COLOR ? null : (v as StageFormValues['color']))
+          }
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_COLOR}>{t.colorNone}</SelectItem>
+            {Object.entries(ru.admin.parts.colors).map(([key, label]) => (
+              <SelectItem key={key} value={key}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </FormField>
       <FormField label={t.intro} htmlFor="s-intro" error={errors.intro?.message}>
         <Textarea id="s-intro" rows={3} {...form.register('intro')} />

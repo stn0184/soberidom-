@@ -52,6 +52,7 @@ function toDefaults(project: ProjectRow | null): ProjectInput {
     isometric_fallback_url: '',
     status: 'draft',
     sp_compliant: true,
+    is_free: false,
   };
 }
 
@@ -70,6 +71,7 @@ export function ProjectForm({
   const { errors, isSubmitting } = form.formState;
   const heating = useWatch({ control: form.control, name: 'heating_options' });
   const spCompliant = useWatch({ control: form.control, name: 'sp_compliant' });
+  const isFree = useWatch({ control: form.control, name: 'is_free' });
 
   async function onSubmit(values: ProjectInput) {
     setServerError(null);
@@ -134,6 +136,13 @@ export function ProjectForm({
           onCheckedChange={(v) => form.setValue('sp_compliant', v)}
         />
         {t.spCompliant}
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <Switch
+          checked={isFree}
+          onCheckedChange={(v) => form.setValue('is_free', v)}
+        />
+        {t.isFree}
       </label>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
