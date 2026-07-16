@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { EstimatePanel } from '@/components/estimate/estimate-panel';
 import { FoundationGuide } from '@/components/estimate/foundation-guide';
+import { OptionCards, type ConfigOptionCard } from '@/components/estimate/option-cards';
 import { RegionCombobox, type RegionOption } from '@/components/quiz/region-combobox';
 import type { EstimateConfig } from '@/lib/estimate/calc';
 import { COUNTRY_CURRENCY, type CountryCode } from '@/lib/constants';
@@ -16,12 +16,11 @@ import { ru } from '@/lib/i18n/ru';
 
 const t = ru.project;
 
-export type ConfigOptions = Record<
-  string,
-  Array<{ key: string; label: string; isDefault: boolean }>
->;
+export type ConfigOptions = Record<string, ConfigOptionCard[]>;
 
-// Конфигуратор + sticky-смета + фундамент-гид (SPEC 4.4 п.4–5, US-003/US-004).
+// Конфигуратор с человеческими карточками (UX_PRINCIPLES п.2–4) + sticky-смета.
+// children — блок между комплектацией и фундамент-гидом (FAQ): воронка эмоций,
+// тест грунта уходит в самый низ страницы.
 export function ProjectConfigurator({
   projectId,
   slug,
@@ -29,6 +28,7 @@ export function ProjectConfigurator({
   currency,
   isFree,
   configOptions,
+  children,
 }: {
   projectId: string;
   slug: string;
@@ -36,6 +36,7 @@ export function ProjectConfigurator({
   currency: string;
   isFree: boolean;
   configOptions: ConfigOptions;
+  children?: React.ReactNode;
 }) {
   const defaults = useMemo(() => {
     const cfg: EstimateConfig = {};
@@ -75,29 +76,24 @@ export function ProjectConfigurator({
     <>
       <section id="config" className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">{t.configTitle}</h2>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold">{t.configTitle}</h2>
+            <p className="text-muted-foreground">{t.configIntro}</p>
+          </div>
           <div className="max-w-sm space-y-1.5">
             <Label>{t.regionLabel}</Label>
             <RegionCombobox value={region} onChange={setRegion} />
           </div>
           {Object.entries(configOptions).map(([group, options]) => (
             <div key={group} className="space-y-2">
-              <Label>{t.groups[group as keyof typeof t.groups] ?? group}</Label>
-              <RadioGroup
+              <Label className="text-base">
+                {t.groups[group as keyof typeof t.groups] ?? group}
+              </Label>
+              <OptionCards
+                options={options}
                 value={config[group]}
-                onValueChange={(v) => setConfig((prev) => ({ ...prev, [group]: v }))}
-                className="flex flex-wrap gap-2"
-              >
-                {options.map((option) => (
-                  <label
-                    key={option.key}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm has-data-[state=checked]:border-primary"
-                  >
-                    <RadioGroupItem value={option.key} />
-                    {option.label}
-                  </label>
-                ))}
-              </RadioGroup>
+                onChange={(key) => setConfig((prev) => ({ ...prev, [group]: key }))}
+              />
             </div>
           ))}
         </div>
@@ -115,6 +111,8 @@ export function ProjectConfigurator({
           </Card>
         </div>
       </section>
+
+      {children}
 
       <FoundationGuide
         projectId={projectId}

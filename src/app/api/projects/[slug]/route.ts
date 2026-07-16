@@ -21,17 +21,34 @@ export async function GET(_request: Request, { params }: Ctx) {
 
   const { data: options } = await supabase
     .from('config_options')
-    .select('group_key, option_key, label, is_default, sort')
+    .select('*')
     .eq('project_id', p.id)
     .order('sort');
 
-  const configOptions: Record<string, Array<{ key: string; label: string; isDefault: boolean }>> =
-    {};
+  // v1.6-кандидат: поля человеческих карточек (UX_PRINCIPLES) — аддитивно к SPEC 3.3.
+  const configOptions: Record<
+    string,
+    Array<{
+      key: string;
+      label: string;
+      isDefault: boolean;
+      imageUrl: string;
+      humanDescription: string;
+      priceHint: string;
+      isBeginnerChoice: boolean;
+      beginnerAdvice: string;
+    }>
+  > = {};
   for (const o of options ?? []) {
     (configOptions[o.group_key] ??= []).push({
       key: o.option_key,
       label: o.label,
       isDefault: o.is_default,
+      imageUrl: o.image_url,
+      humanDescription: o.human_description,
+      priceHint: o.price_hint,
+      isBeginnerChoice: o.is_beginner_choice,
+      beginnerAdvice: o.beginner_advice,
     });
   }
 

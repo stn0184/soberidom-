@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ListStates } from '@/components/admin/list-states';
+import { OptionsPanel } from '@/components/admin/options-panel';
 import { PartsPanel } from '@/components/admin/parts-panel';
 import { StagesPanel } from '@/components/admin/stages-panel';
 import type { ProjectRow } from '@/lib/admin/types';
@@ -55,12 +56,16 @@ export function StepsManager() {
                 <TabsList>
                   <TabsTrigger value="stages">{ru.admin.steps.tabSteps}</TabsTrigger>
                   <TabsTrigger value="parts">{ru.admin.steps.tabParts}</TabsTrigger>
+                  <TabsTrigger value="options">{ru.admin.steps.tabOptions}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="stages">
                   <StagesPanel projectId={projectId} />
                 </TabsContent>
                 <TabsContent value="parts">
                   <PartsPanel projectId={projectId} />
+                </TabsContent>
+                <TabsContent value="options">
+                  <OptionsPanel projectId={projectId} />
                 </TabsContent>
               </Tabs>
             )}

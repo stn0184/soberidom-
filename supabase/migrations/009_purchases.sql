@@ -1,5 +1,6 @@
 -- SPEC.md 2.6 purchases, promo_codes (SQL дословно из SPEC v1.5; этап 4).
--- Остальные таблицы раздела 2.6 (user_prices, user_progress, user_expenses) — этап 5, миграция 010.
+-- Остальные таблицы раздела 2.6 (user_prices, user_progress, user_expenses) — этап 5, миграция 011
+-- (010 занята UX-этапом: поля карточек в config_options).
 create table purchases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,

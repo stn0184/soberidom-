@@ -39,6 +39,10 @@ export type PartRow = Omit<Tables['parts']['Row'], 'color' | 'applies_when'> & {
   applies_when: AppliesWhen;
 };
 
+export type ConfigOptionRow = Omit<Tables['config_options']['Row'], 'group_key'> & {
+  group_key: 'lumber' | 'roofing' | 'finish_ext' | 'finish_int' | 'foundation';
+};
+
 export type MaterialRow = Tables['materials']['Row'];
 export type MaterialPriceRow = Tables['material_prices']['Row'];
 export type RegionRow = Tables['regions']['Row'];

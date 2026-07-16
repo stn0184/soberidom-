@@ -87,6 +87,27 @@ export const partSchema = z.object({
 export const partUpdateSchema = partSchema.partial();
 export type PartInput = z.infer<typeof partSchema>;
 
+// Опции конфигуратора + поля «человеческого» показа (UX_PRINCIPLES, миграция 010).
+export const configOptionSchema = z.object({
+  project_id: z.uuid(),
+  group_key: z.enum(['lumber', 'roofing', 'finish_ext', 'finish_int', 'foundation']),
+  option_key: z
+    .string()
+    .trim()
+    .min(1)
+    .regex(/^[a-z0-9_]+$/),
+  label: z.string().trim().min(1),
+  is_default: z.boolean(),
+  sort: z.number().int(),
+  image_url: z.string(),
+  human_description: z.string(),
+  price_hint: z.string(),
+  is_beginner_choice: z.boolean(),
+  beginner_advice: z.string(),
+});
+export const configOptionUpdateSchema = configOptionSchema.partial();
+export type ConfigOptionInput = z.infer<typeof configOptionSchema>;
+
 export const materialSchema = z.object({
   sku_internal: z.string().trim().min(1),
   name: z.string().trim().min(1),

@@ -33,7 +33,7 @@ export default async function BuyPage({ params }: Ctx) {
 
   const { data: options } = await db
     .from('config_options')
-    .select('group_key, option_key, label, is_default, sort')
+    .select('*')
     .eq('project_id', project.id)
     .order('sort');
   const configOptions: ConfigOptions = {};
@@ -42,6 +42,11 @@ export default async function BuyPage({ params }: Ctx) {
       key: o.option_key,
       label: o.label,
       isDefault: o.is_default,
+      imageUrl: o.image_url,
+      humanDescription: o.human_description,
+      priceHint: o.price_hint,
+      isBeginnerChoice: o.is_beginner_choice,
+      beginnerAdvice: o.beginner_advice,
     });
   }
 

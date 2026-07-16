@@ -39,7 +39,7 @@ async function fetchProject(slug: string) {
   if (!project) return null;
   const { data: options } = await supabase
     .from('config_options')
-    .select('group_key, option_key, label, is_default, sort')
+    .select('*')
     .eq('project_id', project.id)
     .order('sort');
   const configOptions: ConfigOptions = {};
@@ -48,6 +48,11 @@ async function fetchProject(slug: string) {
       key: o.option_key,
       label: o.label,
       isDefault: o.is_default,
+      imageUrl: o.image_url,
+      humanDescription: o.human_description,
+      priceHint: o.price_hint,
+      isBeginnerChoice: o.is_beginner_choice,
+      beginnerAdvice: o.beginner_advice,
     });
   }
   return { project, configOptions };
@@ -143,6 +148,7 @@ export default async function ProjectPage({ params }: Ctx) {
         </section>
       )}
 
+      {/* Воронка эмоций (UX_PRINCIPLES п.4): комплектация → FAQ → фундамент-гид в самом низу. */}
       <ProjectConfigurator
         projectId={project.id}
         slug={project.slug}
@@ -150,19 +156,19 @@ export default async function ProjectPage({ params }: Ctx) {
         currency={project.currency}
         isFree={project.is_free}
         configOptions={configOptions}
-      />
-
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">{ru.project.buyFaqTitle}</h2>
-        <Accordion type="single" collapsible className="max-w-3xl">
-          {ru.project.buyFaq.map((item) => (
-            <AccordionItem key={item.q} value={item.q}>
-              <AccordionTrigger>{item.q}</AccordionTrigger>
-              <AccordionContent>{item.a}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
+      >
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">{ru.project.buyFaqTitle}</h2>
+          <Accordion type="single" collapsible className="max-w-3xl">
+            {ru.project.buyFaq.map((item) => (
+              <AccordionItem key={item.q} value={item.q}>
+                <AccordionTrigger>{item.q}</AccordionTrigger>
+                <AccordionContent>{item.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+      </ProjectConfigurator>
     </div>
   );
 }

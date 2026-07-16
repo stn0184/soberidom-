@@ -65,29 +65,44 @@ export type Database = {
       }
       config_options: {
         Row: {
+          beginner_advice: string
           group_key: string
+          human_description: string
           id: string
+          image_url: string
+          is_beginner_choice: boolean
           is_default: boolean
           label: string
           option_key: string
+          price_hint: string
           project_id: string
           sort: number
         }
         Insert: {
+          beginner_advice?: string
           group_key: string
+          human_description?: string
           id?: string
+          image_url?: string
+          is_beginner_choice?: boolean
           is_default?: boolean
           label: string
           option_key: string
+          price_hint?: string
           project_id: string
           sort?: number
         }
         Update: {
+          beginner_advice?: string
           group_key?: string
+          human_description?: string
           id?: string
+          image_url?: string
+          is_beginner_choice?: boolean
           is_default?: boolean
           label?: string
           option_key?: string
+          price_hint?: string
           project_id?: string
           sort?: number
         }
