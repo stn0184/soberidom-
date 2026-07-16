@@ -460,6 +460,105 @@ export type Database = {
           },
         ]
       }
+      promo_codes: {
+        Row: {
+          code: string
+          expires_at: string | null
+          project_id: string | null
+          uses_left: number
+        }
+        Insert: {
+          code: string
+          expires_at?: string | null
+          project_id?: string | null
+          uses_left?: number
+        }
+        Update: {
+          code?: string
+          expires_at?: string | null
+          project_id?: string | null
+          uses_left?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchases: {
+        Row: {
+          activated_at: string | null
+          amount_minor: number
+          code: string
+          config: Json
+          created_at: string
+          currency: string
+          id: string
+          project_id: string
+          provider: string
+          region_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_minor: number
+          code: string
+          config?: Json
+          created_at?: string
+          currency: string
+          id?: string
+          project_id: string
+          provider?: string
+          region_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          amount_minor?: number
+          code?: string
+          config?: Json
+          created_at?: string
+          currency?: string
+          id?: string
+          project_id?: string
+          provider?: string
+          region_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "house_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regions: {
         Row: {
           country_code: string

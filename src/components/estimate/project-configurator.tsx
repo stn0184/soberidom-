@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -48,6 +48,24 @@ export function ProjectConfigurator({
 
   const [config, setConfig] = useState<EstimateConfig>(defaults);
   const [region, setRegion] = useState<RegionOption | null>(null);
+
+  // Выбор пользователя переживает переход на /buy (sessionStorage).
+  useEffect(() => {
+    queueMicrotask(() => {
+      try {
+        const raw = sessionStorage.getItem('sd_region_v1');
+        if (raw) setRegion(JSON.parse(raw) as RegionOption);
+      } catch {
+        // повреждённое значение игнорируем
+      }
+    });
+  }, []);
+  useEffect(() => {
+    sessionStorage.setItem(`sd_config_${projectId}`, JSON.stringify(config));
+  }, [config, projectId]);
+  useEffect(() => {
+    if (region) sessionStorage.setItem('sd_region_v1', JSON.stringify(region));
+  }, [region]);
 
   const estimateCurrency = region
     ? (COUNTRY_CURRENCY[region.countryCode as CountryCode] ?? currency)

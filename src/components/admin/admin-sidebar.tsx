@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ExternalLink, Home, ListChecks, MapPin, Package } from 'lucide-react';
+import { ExternalLink, Home, ListChecks, MapPin, Package, ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ru } from '@/lib/i18n/ru';
 
@@ -10,6 +10,7 @@ const ITEMS = [
   { href: '/admin/projects', label: ru.admin.nav.projects, icon: Home },
   { href: '/admin/steps', label: ru.admin.nav.steps, icon: ListChecks },
   { href: '/admin/materials', label: ru.admin.nav.materials, icon: Package },
+  { href: '/admin/purchases', label: ru.admin.nav.purchases, icon: ShoppingCart },
   { href: '/admin/regions', label: ru.admin.nav.regions, icon: MapPin },
 ] as const;
 
