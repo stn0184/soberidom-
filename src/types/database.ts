@@ -699,9 +699,11 @@ export type Database = {
           color: string | null
           delivery_wave: number
           display_name: string
+          duration_days: number | null
           id: string
           intro: string
           project_id: string
+          result_image_url: string
           sort: number
           title: string
         }
@@ -711,9 +713,11 @@ export type Database = {
           color?: string | null
           delivery_wave?: number
           display_name?: string
+          duration_days?: number | null
           id?: string
           intro?: string
           project_id: string
+          result_image_url?: string
           sort: number
           title: string
         }
@@ -723,9 +727,11 @@ export type Database = {
           color?: string | null
           delivery_wave?: number
           display_name?: string
+          duration_days?: number | null
           id?: string
           intro?: string
           project_id?: string
+          result_image_url?: string
           sort?: number
           title?: string
         }

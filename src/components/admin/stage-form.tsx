@@ -15,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FileUpload } from '@/components/admin/file-upload';
 import { FormField } from '@/components/admin/form-field';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import { parseAppliesWhen } from '@/lib/admin/form-utils';
@@ -55,6 +57,8 @@ export function StageForm({
           display_name: stage.display_name,
           color: stage.color,
           intro: stage.intro,
+          duration_days: stage.duration_days,
+          result_image_url: stage.result_image_url,
           delivery_wave: stage.delivery_wave,
         }
       : {
@@ -64,11 +68,14 @@ export function StageForm({
           display_name: '',
           color: null,
           intro: '',
+          duration_days: null,
+          result_image_url: '',
           delivery_wave: 2,
         },
   });
   const { errors, isSubmitting } = form.formState;
   const color = useWatch({ control: form.control, name: 'color' });
+  const resultImageUrl = useWatch({ control: form.control, name: 'result_image_url' });
 
   async function onSubmit(values: StageFormValues) {
     setServerError(null);
@@ -151,6 +158,25 @@ export function StageForm({
       <FormField label={t.intro} htmlFor="s-intro" error={errors.intro?.message}>
         <Textarea id="s-intro" rows={3} {...form.register('intro')} />
       </FormField>
+      <FormField label={t.durationDays} htmlFor="s-days" error={errors.duration_days?.message}>
+        <Input
+          id="s-days"
+          type="number"
+          min={1}
+          {...form.register('duration_days', {
+            setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
+          })}
+        />
+      </FormField>
+      <div className="space-y-1.5">
+        <Label>{t.resultImage}</Label>
+        <FileUpload
+          bucket="public-assets"
+          accept="image/webp,image/png,image/jpeg"
+          value={resultImageUrl}
+          onChange={(url) => form.setValue('result_image_url', url, { shouldDirty: true })}
+        />
+      </div>
       <FormField
         label={ru.admin.common.appliesWhen}
         htmlFor="s-aw"

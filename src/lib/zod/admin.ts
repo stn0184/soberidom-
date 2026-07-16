@@ -44,6 +44,8 @@ export const stageSchema = z.object({
   display_name: z.string(), // v1.5: человеческое имя для пользователя
   color: z.enum(['red', 'green', 'yellow', 'blue', 'orange', 'purple']).nullable(), // v1.5
   intro: z.string(),
+  duration_days: z.number().int().positive().nullable(), // карта путешествия
+  result_image_url: z.string(), // «должно получиться вот так»
   delivery_wave: z.number().int().min(1).max(5),
   applies_when: appliesWhenSchema,
 });

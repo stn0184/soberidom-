@@ -208,6 +208,8 @@ export const ru = {
       color: 'Цвет этапа',
       colorNone: '—',
       intro: 'Интро этапа (что построим и почему в этом порядке)',
+      durationDays: 'Примерная длительность, дней',
+      resultImage: 'Картинка результата («должно получиться вот так»)',
       deliveryWave: 'Волна доставки (1–5)',
       stepsBtn: 'Шаги',
     },
@@ -617,6 +619,14 @@ export const ru = {
     freeOpen: 'Открыть бесплатный разбор',
     freeOpening: 'Открываем…',
     hub: {
+      journeyTitle: 'Вот что нас ждёт',
+      journeyIntro:
+        'Не переживайте — идём вместе, шаг за шагом. Вот вся стройка целиком: можно заглянуть в любой этап, даже в самый последний. Ничего не заперто.',
+      totalDuration: (days: number) => `Вся стройка — примерно ${days} дн. спокойного темпа`,
+      stageDuration: (days: number) => `≈ ${days} дн.`,
+      stageSteps: (done: number, total: number) => `${done} из ${total} шагов`,
+      stageResultAlt: 'Должно получиться вот так',
+      openStage: 'Заглянуть',
       progressTitle: 'Ваш прогресс',
       currentStage: (name: string) => `Сейчас вы на этапе: ${name}`,
       allDone: 'Все шаги пройдены — поздравляем!',

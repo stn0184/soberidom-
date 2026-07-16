@@ -18,7 +18,14 @@ type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; stages: 
 
 // Конструктор сборки (US-007): возврат открывает первый незавершённый шаг,
 // отметки — optimistic с офлайн-очередью (edge 1), авто-переход после «Готово».
-export function BuildView({ purchaseId }: { purchaseId: string }) {
+// initialStageId — вход с «карты путешествия» (ВИДЕНИЕ 2.2: свобода навигации).
+export function BuildView({
+  purchaseId,
+  initialStageId,
+}: {
+  purchaseId: string;
+  initialStageId?: string;
+}) {
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [tick, setTick] = useState(0);
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
@@ -54,15 +61,20 @@ export function BuildView({ purchaseId }: { purchaseId: string }) {
     return state.stages.flatMap((stage) => stage.steps.map((step) => ({ stage, step })));
   }, [state]);
 
-  // Первый незавершённый шаг (US-007) — если ничего не выбрано.
+  // Первый незавершённый шаг (US-007); при входе с карты этапов — шаг этого этапа.
   const current = useMemo(() => {
     if (flatSteps.length === 0) return null;
     if (selectedStepId) {
       const found = flatSteps.find((f) => f.step.id === selectedStepId);
       if (found) return found;
     }
+    if (initialStageId) {
+      const stageSteps = flatSteps.filter((f) => f.stage.id === initialStageId);
+      const target = stageSteps.find((f) => !f.step.done) ?? stageSteps[0];
+      if (target) return target;
+    }
     return flatSteps.find((f) => !f.step.done) ?? flatSteps[flatSteps.length - 1];
-  }, [flatSteps, selectedStepId]);
+  }, [flatSteps, selectedStepId, initialStageId]);
 
   const setStepDone = useCallback(
     (stepId: string, done: boolean) => {

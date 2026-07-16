@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { JourneyMap, type JourneyStage } from '@/components/build/journey-map';
 import { getPurchaseProgress } from '@/lib/build/progress';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
@@ -55,6 +56,23 @@ export default async function PurchaseHubPage({ params }: Ctx) {
   );
   const t = ru.my.hub;
 
+  // «Карта путешествия» (ВИДЕНИЕ 2.1): все этапы по порядку с прогрессом.
+  const journeyStages: JourneyStage[] = progress.stages.map((stage, index) => {
+    const stageSteps = progress.steps.filter((s) => s.stage_id === stage.id);
+    return {
+      id: stage.id,
+      number: index + 1,
+      displayName: stage.display_name || stage.title,
+      color: stage.color,
+      intro: stage.intro,
+      durationDays: stage.duration_days,
+      resultImageUrl: stage.result_image_url,
+      doneSteps: stageSteps.filter((s) => progress.doneStepIds.has(s.id)).length,
+      totalSteps: stageSteps.length,
+    };
+  });
+  const totalDays = journeyStages.reduce((sum, s) => sum + (s.durationDays ?? 0), 0);
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">{purchase.house_projects?.title}</h1>
@@ -74,6 +92,17 @@ export default async function PurchaseHubPage({ params }: Ctx) {
               : t.allDone}
         </p>
       </section>
+
+      {journeyStages.length > 0 && (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-semibold">{t.journeyTitle}</h2>
+            <p className="max-w-2xl text-muted-foreground">{t.journeyIntro}</p>
+            {totalDays > 0 && <p className="mt-1 font-medium">{t.totalDuration(totalDays)}</p>}
+          </div>
+          <JourneyMap purchaseId={purchase.id} stages={journeyStages} />
+        </section>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {SECTIONS.map(({ key, icon: Icon }) => (

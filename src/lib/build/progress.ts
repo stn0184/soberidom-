@@ -10,6 +10,8 @@ export type StageMeta = {
   display_name: string;
   color: string | null;
   intro: string;
+  duration_days: number | null; // «карта путешествия»: примерная длительность
+  result_image_url: string; // «должно получиться вот так»
   applies_when: Record<string, string> | null;
 };
 
@@ -27,7 +29,7 @@ export async function getVisibleStages(
 ): Promise<StageMeta[]> {
   const { data: stages } = await db
     .from('stages')
-    .select('id, sort, code, title, display_name, color, intro, applies_when')
+    .select('id, sort, code, title, display_name, color, intro, duration_days, result_image_url, applies_when')
     .eq('project_id', projectId)
     .order('sort');
   return ((stages ?? []) as StageMeta[]).filter((s) => appliesTo(s.applies_when, config));
