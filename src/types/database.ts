@@ -305,6 +305,7 @@ export type Database = {
           lumber_moisture: string | null
           name: string
           sku_internal: string
+          storage_tip: string
           unit: string
           updated_at: string
           volume_m3: number
@@ -317,6 +318,7 @@ export type Database = {
           lumber_moisture?: string | null
           name: string
           sku_internal: string
+          storage_tip?: string
           unit: string
           updated_at?: string
           volume_m3?: number
@@ -329,6 +331,7 @@ export type Database = {
           lumber_moisture?: string | null
           name?: string
           sku_internal?: string
+          storage_tip?: string
           unit?: string
           updated_at?: string
           volume_m3?: number
@@ -884,6 +887,148 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_expenses: {
+        Row: {
+          amount_minor: number
+          created_at: string
+          currency: string
+          custom_title: string
+          id: string
+          material_id: string | null
+          note: string
+          purchase_id: string
+          qty: number
+          spent_on: string
+          stage_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          created_at?: string
+          currency: string
+          custom_title?: string
+          id?: string
+          material_id?: string | null
+          note?: string
+          purchase_id: string
+          qty?: number
+          spent_on?: string
+          stage_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          created_at?: string
+          currency?: string
+          custom_title?: string
+          id?: string
+          material_id?: string | null
+          note?: string
+          purchase_id?: string
+          qty?: number
+          spent_on?: string
+          stage_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_expenses_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_expenses_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_expenses_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_prices: {
+        Row: {
+          id: string
+          material_id: string
+          price_minor: number
+          purchase_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          material_id: string
+          price_minor: number
+          purchase_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          material_id?: string
+          price_minor?: number
+          purchase_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_prices_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_prices_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          done_at: string
+          id: string
+          purchase_id: string
+          step_id: string
+        }
+        Insert: {
+          done_at?: string
+          id?: string
+          purchase_id: string
+          step_id: string
+        }
+        Update: {
+          done_at?: string
+          id?: string
+          purchase_id?: string
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "steps"
             referencedColumns: ["id"]
           },
         ]

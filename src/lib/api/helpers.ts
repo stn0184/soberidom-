@@ -73,3 +73,44 @@ export async function parseJson(request: Request): Promise<unknown | null> {
     return null;
   }
 }
+
+export type PurchaseCtx = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  status: string;
+  code: string;
+  amount_minor: number;
+  currency: string;
+  config: Record<string, string>;
+  region_id: string | null;
+};
+
+type PurchaseOk = { supabase: SupabaseClient; user: User; purchase: PurchaseCtx };
+
+// Доступ к /api/my/[purchaseId]/*: владелец + active (SPEC 5.5).
+// Чужая/несуществующая покупка → 404, не раскрываем существование (edge 9).
+export async function requireOwnerPurchase(
+  purchaseId: string,
+  opts?: { allowPending?: boolean }
+): Promise<PurchaseOk | AdminFail> {
+  const client = await createClient();
+  const {
+    data: { user },
+  } = await client.auth.getUser();
+  if (!user) return { error: apiError('UNAUTHORIZED', ru.api.unauthorized) };
+
+  const supabase = client as unknown as SupabaseClient;
+  const { data: purchase } = await supabase
+    .from('purchases')
+    .select('*')
+    .eq('id', purchaseId)
+    .maybeSingle();
+  if (!purchase || purchase.user_id !== user.id) {
+    return { error: apiError('NOT_FOUND', ru.api.notFound) };
+  }
+  if (purchase.status !== 'active' && !opts?.allowPending) {
+    return { error: apiError('FORBIDDEN', ru.api.forbidden) };
+  }
+  return { supabase, user, purchase: purchase as PurchaseCtx };
+}
