@@ -392,6 +392,14 @@ export const ru = {
       undecided: 'Ещё не решил',
     },
     foundations: { piles: 'Свайно-винтовой', mzlf: 'Лента МЗЛФ', columnar: 'Столбчатый' },
+    colors: {
+      red: 'Красный',
+      green: 'Зелёный',
+      yellow: 'Жёлтый',
+      blue: 'Синий',
+      orange: 'Оранжевый',
+      purple: 'Фиолетовый',
+    },
     floors: (n: number) => (n === 1 ? '1 этаж' : '2 этажа (мансарда)'),
     rooms: (n: number) => `${n} комн.`,
     area: (m: number) => `${m} м²`,
@@ -663,6 +671,23 @@ export const ru = {
     cut: (mm: number) => `рез ${mm} мм`,
     emptyTitle: 'Шагов пока нет',
     emptyText: 'Контент проекта ещё наполняется — загляните позже.',
+  },
+  cutting: {
+    title: 'Карта раскроя',
+    intro:
+      'Пометьте доски маркером по цветам ниже — и напилите все детали за один подход. Каждая полоса — одна заготовка 6 метров.',
+    filterStage: 'Этап',
+    filterAll: 'Все этапы',
+    boardsNeeded: (n: number) => `заготовок: ${n}`,
+    boardsCount: (n: number) => `×${n}`,
+    waste: 'отход',
+    markerTitle: 'Пометьте маркером',
+    markerInstruction: (color: string, count: number, codes: string) =>
+      `${color}: ${count} шт — детали ${codes}`,
+    usageTitle: (code: string) => `Где используется деталь ${code}`,
+    print: 'Печать / PDF',
+    emptyTitle: 'Деталей для раскроя пока нет',
+    emptyText: 'Как только в проекте появятся детали — здесь будет карта раскроя.',
   },
   buy: {
     title: 'Оформление покупки',
