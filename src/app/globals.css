@@ -74,6 +74,9 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.75rem;
+  /* План/факт (SPEC 4.10): пара валидирована dataviz-скиллом для обеих тем */
+  --chart-plan: #3b82f6;
+  --chart-fact: #d97706;
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.208 0.042 265.755);
   --sidebar-primary: oklch(0.666 0.179 58.318);
