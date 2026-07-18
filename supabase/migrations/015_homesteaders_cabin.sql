@@ -22,6 +22,7 @@ begin
     building_type = 'house',
     style = 'classic',
     floors = 2,
+    rooms = 2,
     area_m2 = 26.8,
     footprint = '3,7 × 7,3 м',
     is_free = true,
