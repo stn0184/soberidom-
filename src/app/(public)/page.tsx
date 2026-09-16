@@ -9,13 +9,14 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { InsideSection } from '@/components/landing/inside-section';
 import { ProjectCard, type ProjectCardData } from '@/components/quiz/project-card';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
 
 const HOW_ICONS = [ClipboardList, Ruler, Hammer];
 
-// Лендинг (SPEC 4.1): hero → как это работает → пример шага → проекты → FAQ → CTA.
+// Лендинг (SPEC 4.1): hero → как это работает → что внутри разбора → пример шага → проекты → FAQ → CTA.
 export default async function HomePage() {
   const supabase = (await createClient()) as unknown as SupabaseClient;
   const { data: projects } = await supabase
@@ -64,6 +65,8 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      <InsideSection />
 
       <section className="space-y-6">
         <h2 className="text-center text-3xl font-semibold">{ru.landing.exampleTitle}</h2>
