@@ -42,7 +42,7 @@ export default async function HomePage() {
       <section className="flex flex-col items-center gap-5 text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{ru.home.heroTitle}</h1>
         <p className="max-w-2xl text-lg text-muted-foreground">{ru.home.heroSubtitle}</p>
-        <Button asChild size="lg">
+        <Button asChild size="xl">
           <Link href="/quiz">{ru.landing.heroCta}</Link>
         </Button>
       </section>
@@ -113,7 +113,7 @@ export default async function HomePage() {
 
       <section className="flex flex-col items-center gap-4 rounded-2xl bg-muted/50 p-12 text-center">
         <h2 className="text-3xl font-semibold">{ru.landing.finalTitle}</h2>
-        <Button asChild size="lg">
+        <Button asChild size="xl">
           <Link href="/quiz">{ru.landing.heroCta}</Link>
         </Button>
       </section>
