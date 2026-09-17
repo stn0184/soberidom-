@@ -14,6 +14,7 @@ import { ListStates } from '@/components/admin/list-states';
 import { OptionsPanel } from '@/components/admin/options-panel';
 import { PartsPanel } from '@/components/admin/parts-panel';
 import { StagesPanel } from '@/components/admin/stages-panel';
+import { ToolsPanel } from '@/components/admin/tools-panel';
 import type { ProjectRow } from '@/lib/admin/types';
 import { useAdminList } from '@/lib/admin/use-admin-list';
 import { ru } from '@/lib/i18n/ru';
@@ -57,6 +58,7 @@ export function StepsManager() {
                   <TabsTrigger value="stages">{ru.admin.steps.tabSteps}</TabsTrigger>
                   <TabsTrigger value="parts">{ru.admin.steps.tabParts}</TabsTrigger>
                   <TabsTrigger value="options">{ru.admin.steps.tabOptions}</TabsTrigger>
+                  <TabsTrigger value="tools">{ru.admin.steps.tabTools}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="stages">
                   <StagesPanel projectId={projectId} />
@@ -66,6 +68,9 @@ export function StepsManager() {
                 </TabsContent>
                 <TabsContent value="options">
                   <OptionsPanel projectId={projectId} />
+                </TabsContent>
+                <TabsContent value="tools">
+                  <ToolsPanel projectId={projectId} />
                 </TabsContent>
               </Tabs>
             )}

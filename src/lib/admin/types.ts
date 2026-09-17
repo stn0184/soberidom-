@@ -51,6 +51,9 @@ export type ToolVariantRow = Omit<Tables['tool_variants']['Row'], 'recommendatio
   recommendation: ToolVariantInput['recommendation'];
 };
 
+// Потребность вместе с вариантами: админка правит их одним экраном.
+export type ToolWithVariants = ToolRow & { tool_variants: ToolVariantRow[] };
+
 export type MaterialRow = Tables['materials']['Row'];
 export type MaterialPriceRow = Tables['material_prices']['Row'];
 export type RegionRow = Tables['regions']['Row'];
