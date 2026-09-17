@@ -222,7 +222,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
       подсветка, optimistic + откат); ключи `ru.tools.*`.
 - [x] `/supplies` + `stage-supplies.tsx`: действующий вариант, подпись,
       ссылка «Выбрать другой →»; `SuppliesTool` в `build-types.ts`.
-- [ ] Сид `027_seed_tools_homesteaders.sql` по таблице выше; `db push`.
+- [x] Сид `027_seed_tools_homesteaders.sql` по таблице выше; `db push`.
 - [ ] Документы по разделу ниже.
 
 ## Приёмка
