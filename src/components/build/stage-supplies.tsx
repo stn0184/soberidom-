@@ -50,9 +50,9 @@ export function SuppliesMaterials({
 }) {
   const [marks, setMarks] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState<string | null>(null);
-
   const isPurchased = (p: EstimatePosition) => marks[p.materialId] ?? p.purchased;
   const done = materials.filter(isPurchased).length;
+  // Без цены — мимо итога; если цен нет ни у одной, итога нет вовсе.
   const missing = materials.filter((p) => p.priceMissing).length;
   const totalMinor = materials.reduce((sum, p) => (p.priceMissing ? sum : sum + p.amountMinor), 0);
 
@@ -136,11 +136,12 @@ export function SuppliesMaterials({
           ))}
         </TableBody>
       </Table>
-      {/* Позиции без цены в итог не входят — иначе он выглядел бы полным. */}
-      <div className="flex items-baseline justify-end gap-2 text-sm">
-        <span className="font-medium">{t.stageTotal(formatMoneyMinor(totalMinor, currency))}</span>
-        {missing > 0 && <Badge variant="secondary">{t.totalApprox(missing)}</Badge>}
-      </div>
+      {missing < materials.length && (
+        <div className="flex items-baseline justify-end gap-2 text-sm">
+          <span className="font-medium">{t.stageTotal(formatMoneyMinor(totalMinor, currency))}</span>
+          {missing > 0 && <Badge variant="secondary">{t.totalApprox(missing)}</Badge>}
+        </div>
+      )}
     </section>
   );
 }
