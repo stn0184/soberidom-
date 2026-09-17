@@ -212,7 +212,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
       `npx supabase db push`; regen `src/types/database.ts`.
 - [x] Zod: `toolSchema`, `toolVariantSchema` (+ `Update`), схема тела
       `PUT /choice`; типы `ToolRow`, `ToolVariantRow` в `lib/admin/types.ts`.
-- [ ] Админ-роуты `/api/admin/tools`, `/api/admin/tools/[id]`,
+- [x] Админ-роуты `/api/admin/tools`, `/api/admin/tools/[id]`,
       `/api/admin/tool-variants`, `/api/admin/tool-variants/[id]`.
 - [ ] `tools-panel.tsx`, `tool-form.tsx`, `tool-variants-field.tsx`;
       вкладка «Инструменты» в `steps-manager.tsx`; ключи `ru.admin.tools.*`.
