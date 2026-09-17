@@ -218,7 +218,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
       вкладка «Инструменты» в `steps-manager.tsx`; ключи `ru.admin.tools.*`.
 - [x] `GET /tools`: варианты, `chosenVariantId`, суммы по действующему
       варианту; `PUT /tools/choice`.
-- [ ] `tool-variant-card.tsx`; переделка `tools-view.tsx` (выбор,
+- [x] `tool-variant-card.tsx`; переделка `tools-view.tsx` (выбор,
       подсветка, optimistic + откат); ключи `ru.tools.*`.
 - [ ] `/supplies` + `stage-supplies.tsx`: действующий вариант, подпись,
       ссылка «Выбрать другой →»; `SuppliesTool` в `build-types.ts`.

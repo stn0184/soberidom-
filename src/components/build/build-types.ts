@@ -63,3 +63,33 @@ export type SuppliesResponse = {
   data: { materials: EstimatePosition[]; tools: SuppliesTool[]; currency: string };
   meta: { needRegion: boolean };
 };
+
+// Ответ GET /api/my/[purchaseId]/tools (SPEC 3.14a, спека 004): потребность
+// с вариантами. sort едет на клиент — по нему считается вариант по умолчанию.
+export type ToolVariant = {
+  id: string;
+  name: string;
+  description: string;
+  recommendation: 'buy' | 'rent' | 'borrow_or_buy_cheap';
+  priceMinor: number | null;
+  rentDayMinor: number | null;
+  speedNote: string;
+  isBeginnerChoice: boolean;
+  sort: number;
+};
+
+export type ToolNeed = {
+  id: string;
+  name: string;
+  category: string;
+  reason: string;
+  daysNeeded: number;
+  stages: string[];
+  variants: ToolVariant[];
+  chosenVariantId: string | null;
+};
+
+export type ToolsResponse = {
+  data: { summary: { buyTotalMinor: number; rentTotalMinor: number }; tools: ToolNeed[] };
+  meta: { currency: string; stageCount: number };
+};

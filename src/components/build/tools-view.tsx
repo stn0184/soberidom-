@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,45 +13,45 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiFetch } from '@/lib/admin/fetcher';
+import type { ToolsResponse } from '@/components/build/build-types';
+import { ToolNeedCard } from '@/components/build/tool-need-card';
+import { ApiError, apiFetch } from '@/lib/admin/fetcher';
+import { toolsSummary } from '@/lib/tools/effective';
 import { formatMoneyMinor } from '@/lib/utils';
 import { ru } from '@/lib/i18n/ru';
 
 const t = ru.tools;
 const ALL = 'all';
 
-type Tool = {
-  name: string;
-  category: string;
-  recommendation: 'buy' | 'rent' | 'borrow_or_buy_cheap';
-  reason: string;
-  approxPriceMinor: number;
-  approxRentDayMinor: number | null;
-  daysNeeded: number;
-  alternative: string;
-  stages: string[];
-};
-type Response = {
-  data: { summary: { buyTotalMinor: number; rentTotalMinor: number }; tools: Tool[] };
-  meta: { currency: string };
-};
-type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; value: Response };
+type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; value: ToolsResponse };
 
-const REC_VARIANT: Record<Tool['recommendation'], 'default' | 'secondary' | 'outline'> = {
-  buy: 'default',
-  rent: 'secondary',
-  borrow_or_buy_cheap: 'outline',
-};
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <Card>
+      <CardHeader className="pb-0">
+        <CardTitle className="text-sm font-normal text-muted-foreground">{label}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-xs text-muted-foreground">{t.byYourChoice}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
-// Инструменты купить/арендовать (US-012a, SPEC 4.12a).
+// Инструменты купить/арендовать (US-012a, SPEC 4.12a): потребность + варианты,
+// выбор за человеком, суммы пересчитываются по выбору (спека 004).
 export function ToolsView({ purchaseId }: { purchaseId: string }) {
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [tick, setTick] = useState(0);
   const [category, setCategory] = useState(ALL);
+  // Выбор показываем сразу, не дожидаясь сервера; ошибка — откат и тост.
+  const [choices, setChoices] = useState<Record<string, string>>({});
+  const [busyTool, setBusyTool] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    apiFetch<Response>(`/api/my/${purchaseId}/tools`)
+    apiFetch<ToolsResponse>(`/api/my/${purchaseId}/tools`)
       .then((value) => !cancelled && setState({ kind: 'ready', value }))
       .catch(() => !cancelled && setState({ kind: 'error' }));
     return () => {
@@ -59,11 +59,35 @@ export function ToolsView({ purchaseId }: { purchaseId: string }) {
     };
   }, [purchaseId, tick]);
 
-  const filtered = useMemo(() => {
+  const tools = useMemo(() => {
     if (state.kind !== 'ready') return [];
-    const tools = state.value.data.tools;
-    return category === ALL ? tools : tools.filter((tool) => tool.category === category);
-  }, [state, category]);
+    return state.value.data.tools.map((tool) => ({
+      ...tool,
+      chosenVariantId: choices[tool.id] ?? tool.chosenVariantId,
+    }));
+  }, [state, choices]);
+
+  async function choose(toolId: string, variantId: string) {
+    const previous = choices[toolId];
+    setChoices((prev) => ({ ...prev, [toolId]: variantId }));
+    setBusyTool(toolId);
+    try {
+      await apiFetch(`/api/my/${purchaseId}/tools/choice`, {
+        method: 'PUT',
+        body: JSON.stringify({ toolId, variantId }),
+      });
+    } catch (e) {
+      setChoices((prev) => {
+        const next = { ...prev };
+        if (previous === undefined) delete next[toolId];
+        else next[toolId] = previous;
+        return next;
+      });
+      toast.error(e instanceof ApiError ? e.message : t.chooseError);
+    } finally {
+      setBusyTool(null);
+    }
+  }
 
   if (state.kind === 'loading') {
     return (
@@ -82,10 +106,14 @@ export function ToolsView({ purchaseId }: { purchaseId: string }) {
       <Alert variant="destructive">
         <AlertDescription className="flex items-center justify-between gap-3">
           <span>{ru.admin.common.loadError}</span>
-          <Button variant="outline" size="sm" onClick={() => {
-            setState({ kind: 'loading' });
-            setTick((n) => n + 1);
-          }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setState({ kind: 'loading' });
+              setTick((n) => n + 1);
+            }}
+          >
             {ru.common.retry}
           </Button>
         </AlertDescription>
@@ -93,107 +121,63 @@ export function ToolsView({ purchaseId }: { purchaseId: string }) {
     );
   }
 
-  const { data, meta } = state.value;
-  if (data.tools.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed p-12 text-center">
-        <p className="font-medium">{t.emptyTitle}</p>
-        <p className="text-sm text-muted-foreground">{t.emptyText}</p>
-      </div>
-    );
-  }
+  const { meta } = state.value;
+  const summary = toolsSummary(tools);
+  const shown = category === ALL ? tools : tools.filter((tool) => tool.category === category);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">{t.title}</h1>
-        <p className="text-muted-foreground">{t.intro}</p>
+        <p className="max-w-3xl text-muted-foreground">{t.intro}</p>
       </div>
 
-      <div className="grid max-w-xl gap-3 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-0">
-            <CardTitle className="text-sm font-normal text-muted-foreground">
-              {t.buyTotal}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {t.approx(formatMoneyMinor(data.summary.buyTotalMinor, meta.currency))}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-0">
-            <CardTitle className="text-sm font-normal text-muted-foreground">
-              {t.rentTotal}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {t.approx(formatMoneyMinor(data.summary.rentTotalMinor, meta.currency))}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {tools.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="font-medium">{t.emptyTitle}</p>
+          <p className="text-sm text-muted-foreground">{t.emptyText}</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid max-w-xl gap-3 sm:grid-cols-2">
+            <StatCard
+              label={t.buyTotal}
+              value={formatMoneyMinor(summary.buyTotalMinor, meta.currency)}
+            />
+            <StatCard
+              label={t.rentTotal}
+              value={formatMoneyMinor(summary.rentTotalMinor, meta.currency)}
+            />
+          </div>
 
-      <Select value={category} onValueChange={setCategory}>
-        <SelectTrigger className="w-56">
-          <SelectValue placeholder={t.filterCategory} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t.filterAll}</SelectItem>
-          {Object.entries(t.categories).map(([key, label]) => (
-            <SelectItem key={key} value={key}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="w-56">
+              <SelectValue placeholder={t.filterCategory} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>{t.filterAll}</SelectItem>
+              {Object.entries(t.categories).map(([key, label]) => (
+                <SelectItem key={key} value={key}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {filtered.map((tool) => (
-          <Card key={tool.name}>
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <CardTitle className="text-base">{tool.name}</CardTitle>
-                <Badge variant={REC_VARIANT[tool.recommendation]}>
-                  {t.recommendation[tool.recommendation]}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">{tool.reason}</p>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>
-                {t.price(formatMoneyMinor(tool.approxPriceMinor, meta.currency))}
-                {tool.approxRentDayMinor !== null && (
-                  <>
-                    {' · '}
-                    {t.rent(
-                      formatMoneyMinor(tool.approxRentDayMinor, meta.currency),
-                      tool.daysNeeded
-                    )}
-                  </>
-                )}
-              </p>
-              {tool.alternative && (
-                <p className="text-muted-foreground">
-                  {t.alternative}: {tool.alternative}
-                </p>
-              )}
-              {tool.stages.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {tool.stages.map((stage) => (
-                    <Badge key={stage} variant="secondary">
-                      {stage}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+          <div className="space-y-4">
+            {shown.map((tool) => (
+              <ToolNeedCard
+                key={tool.id}
+                tool={tool}
+                currency={meta.currency}
+                stageCount={meta.stageCount}
+                busy={busyTool === tool.id}
+                onChoose={(variantId) => void choose(tool.id, variantId)}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
