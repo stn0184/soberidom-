@@ -1,3 +1,5 @@
+import type { EstimatePosition } from '@/lib/estimate/detailed';
+
 // Типы ответа GET /api/my/[purchaseId]/build (SPEC 3.8).
 export type BuildTakePart = {
   partCode: string;
@@ -41,4 +43,23 @@ export type BuildStage = {
   intro: string;
   durationDays: number | null; // чип «≈ N дн.» на экране начала этапа (спека 003)
   steps: BuildStep[];
+};
+
+// Ответ GET /api/my/[purchaseId]/supplies (спека 003): закупки перед этапом.
+// Инструмент — той же формы, что в ответе /tools (SPEC 3.14a).
+export type SuppliesTool = {
+  name: string;
+  category: string;
+  recommendation: 'buy' | 'rent' | 'borrow_or_buy_cheap';
+  reason: string;
+  approxPriceMinor: number;
+  approxRentDayMinor: number | null;
+  daysNeeded: number;
+  alternative: string;
+  stages: string[];
+};
+
+export type SuppliesResponse = {
+  data: { materials: EstimatePosition[]; tools: SuppliesTool[]; currency: string };
+  meta: { needRegion: boolean };
 };

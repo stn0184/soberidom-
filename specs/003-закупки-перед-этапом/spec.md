@@ -132,7 +132,7 @@ Alert + «Повторить»; мало данных — одна позици�
 - [x] Роут `GET /api/my/[purchaseId]/supplies?stage=` — материалы этапа +
       инструменты этапа; без региона — `materials: []`, `needRegion: true`;
       Zod-схема query в `src/lib/zod/`.
-- [ ] `build-types.ts`: тип ответа supplies; `ru.ts`: ключи
+- [x] `build-types.ts`: тип ответа supplies; `ru.ts`: ключи
       `build.stageStart.*` (заголовки, пустое состояние, кнопки, подсказка
       про регион, «≈ N ₽/м³»).
 - [ ] `stage-supplies.tsx` (≤200 строк): таблица материалов с галочкой
