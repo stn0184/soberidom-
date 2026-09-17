@@ -17,7 +17,20 @@ export type EstimatePosition = {
   stageCode: string;
   stageTitle: string;
   purchased: boolean;
+  pricePerM3Minor: number | null; // пиломатериал: цена за куб, как на базе (спека 003)
 };
+
+// Цена за кубометр: на лесной базе доску продают кубами, а у нас — штуками.
+// Только для пиломатериала с известным объёмом единицы и известной ценой;
+// округление до целого рубля (кратно 100 минорных) — на ценнике копеек нет.
+export function pricePerM3Minor(
+  priceMinor: number | undefined,
+  category: string,
+  volumeM3: number
+): number | null {
+  if (priceMinor === undefined || category !== 'lumber' || !(volumeM3 > 0)) return null;
+  return Math.round(priceMinor / volumeM3 / 100) * 100;
+}
 
 export type DetailedEstimate = {
   currency: string;
@@ -58,7 +71,7 @@ export async function calcEstimateDetailed(
   const [{ data: stages }, { data: materials }, { data: prices }, { data: userPrices }, { data: skus }, { data: expenses }] =
     await Promise.all([
       db.from('stages').select('id, code, title, display_name, sort').in('id', stageIds),
-      db.from('materials').select('id, name, unit, storage_tip').in('id', materialIds),
+      db.from('materials').select('id, name, unit, storage_tip, category, volume_m3').in('id', materialIds),
       db
         .from('material_prices')
         .select('material_id, region_id, price_minor')
@@ -137,6 +150,8 @@ export async function calcEstimateDetailed(
       stageCode: stage.code,
       stageTitle: (stage.display_name as string) || (stage.title as string),
       purchased: purchasedSet.has(entry.materialId),
+      // numeric из PostgREST может приехать строкой — приводим явно.
+      pricePerM3Minor: pricePerM3Minor(price, material.category, Number(material.volume_m3)),
       stageSort: stage.sort as number,
     });
   }
@@ -155,6 +170,7 @@ export async function calcEstimateDetailed(
     stageCode: p.stageCode,
     stageTitle: p.stageTitle,
     purchased: p.purchased,
+    pricePerM3Minor: p.pricePerM3Minor,
   }));
 
   return {

@@ -124,7 +124,7 @@ Alert + «Повторить»; мало данных — одна позици�
 - [x] `formatMoneyMinor` в `src/lib/utils.ts`: символ валюты вместо кода
       (`RUB → ₽`, `KZT → ₸`, `BYN → Br`, иначе код) — правило design.md §1;
       сама смета не меняется, только подпись валюты.
-- [ ] `detailed.ts`: `pricePerM3Minor` в `EstimatePosition` (lumber с
+- [x] `detailed.ts`: `pricePerM3Minor` в `EstimatePosition` (lumber с
       `volume_m3 > 0`, иначе `null`); выборка `materials` дополняется
       `category, volume_m3`.
 - [ ] `GET /api/my/[purchaseId]/build`: поле `durationDays` в этапе
