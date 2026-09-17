@@ -216,7 +216,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
       `/api/admin/tool-variants`, `/api/admin/tool-variants/[id]`.
 - [x] `tools-panel.tsx`, `tool-form.tsx`, `tool-variants-field.tsx`;
       вкладка «Инструменты» в `steps-manager.tsx`; ключи `ru.admin.tools.*`.
-- [ ] `GET /tools`: варианты, `chosenVariantId`, суммы по действующему
+- [x] `GET /tools`: варианты, `chosenVariantId`, суммы по действующему
       варианту; `PUT /tools/choice`.
 - [ ] `tool-variant-card.tsx`; переделка `tools-view.tsx` (выбор,
       подсветка, optimistic + откат); ключи `ru.tools.*`.
