@@ -207,7 +207,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
       чипов: 11 этапов → один чип «На всей стройке», ≥5 → четыре чипа и
       «ещё N». `ru.tools.*` переписывается под новую модель (старые
       `price`, `rent`, `alternative` уходят).
-- [ ] Миграция `026_tool_variants.sql`: `tool_variants`,
+- [x] Миграция `026_tool_variants.sql`: `tool_variants`,
       `user_tool_choices`, RLS; тот же коммит — `SPEC.md` §2.4, §2.6;
       `npx supabase db push`; regen `src/types/database.ts`.
 - [ ] Zod: `toolSchema`, `toolVariantSchema` (+ `Update`), схема тела

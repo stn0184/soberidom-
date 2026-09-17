@@ -897,6 +897,53 @@ export type Database = {
           },
         ]
       }
+      tool_variants: {
+        Row: {
+          description: string
+          id: string
+          is_beginner_choice: boolean
+          name: string
+          price_minor: number | null
+          recommendation: string
+          rent_day_minor: number | null
+          sort: number
+          speed_note: string
+          tool_id: string
+        }
+        Insert: {
+          description?: string
+          id?: string
+          is_beginner_choice?: boolean
+          name: string
+          price_minor?: number | null
+          recommendation: string
+          rent_day_minor?: number | null
+          sort?: number
+          speed_note?: string
+          tool_id: string
+        }
+        Update: {
+          description?: string
+          id?: string
+          is_beginner_choice?: boolean
+          name?: string
+          price_minor?: number | null
+          recommendation?: string
+          rent_day_minor?: number | null
+          sort?: number
+          speed_note?: string
+          tool_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_variants_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "project_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_expenses: {
         Row: {
           amount_minor: number
@@ -1035,6 +1082,55 @@ export type Database = {
             columns: ["step_id"]
             isOneToOne: false
             referencedRelation: "steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_tool_choices: {
+        Row: {
+          created_at: string
+          id: string
+          purchase_id: string
+          tool_id: string
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          purchase_id: string
+          tool_id: string
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          purchase_id?: string
+          tool_id?: string
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tool_choices_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_tool_choices_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "project_tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_tool_choices_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "tool_variants"
             referencedColumns: ["id"]
           },
         ]

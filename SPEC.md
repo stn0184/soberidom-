@@ -420,7 +420,7 @@ create policy "skus_read_all" on retailer_skus for select using (true);
 create policy "skus_admin_write" on retailer_skus for all using (is_admin()) with check (is_admin());
 ```
 
-### 2.4 house_projects, конфигурация, этапы, шаги, детали, BOM
+### 2.4 house_projects, конфигурация, этапы, шаги, детали, BOM, инструменты
 
 ```sql
 create table house_projects (
@@ -557,6 +557,32 @@ alter table project_tools enable row level security;
 create policy "ptools_read_all" on project_tools for select using (true);
 create policy "ptools_admin" on project_tools for all using (is_admin()) with check (is_admin());
 -- Читается всеми: список инструмента показываем и на витрине (это продаёт), детали buy/rent — в кабинете.
+-- Строка project_tools — это ПОТРЕБНОСТЬ («Пилить доски»), а не конкретный инструмент:
+-- название, категория, зачем, сколько дней нужен, на каких этапах. Конкретика (ножовка
+-- за 800 ₽ против торцовки в аренду) живёт в tool_variants. Колонки recommendation,
+-- approx_price_minor, approx_rent_day_minor, alternative остались от плоской модели:
+-- новый код их не читает и не пишет, у not null выставлены defaults (миграция 026).
+
+-- Варианты инструмента под одну потребность: дешевле и дольше или дороже и быстрее
+create table tool_variants (
+  id uuid primary key default gen_random_uuid(),
+  tool_id uuid not null references project_tools(id) on delete cascade,
+  name text not null,                     -- 'Циркулярная пила'
+  description text not null default '',   -- чем хорош и чем плох, простыми словами
+  recommendation text not null check (recommendation in ('buy','rent','borrow_or_buy_cheap')),
+  price_minor integer null check (price_minor >= 0),       -- ориентир покупки (null = только аренда)
+  rent_day_minor integer null check (rent_day_minor >= 0), -- ориентир аренды/сутки (null = не арендуют)
+  speed_note text not null default '',    -- 'в 5 раз медленнее'
+  is_beginner_choice boolean not null default false, -- ровно один на потребность, следит форма админки
+  sort smallint not null default 0
+);
+create index tool_variants_tool_idx on tool_variants (tool_id, sort);
+alter table tool_variants enable row level security;
+create policy "tvariants_read_all" on tool_variants for select using (true);
+create policy "tvariants_admin" on tool_variants for all using (is_admin()) with check (is_admin());
+-- Хотя бы одна из двух цен задана — проверяет Zod (в SQL не выражено: вариант «одолжить»
+-- может быть бесплатным, price_minor = 0). Ровно один is_beginner_choice на потребность
+-- держит форма админки; если в базе 0 или 2 — API берёт первого по sort, админка красит бейдж.
 
 -- Связка шаг ↔ детали и крепёж
 create table step_parts (
@@ -638,7 +664,7 @@ insert into foundation_rules (soil,high_water,relief,weight_class,foundation,rea
 -- Правило по коду: если relief='slope' и точного совпадения нет → 'piles'.
 ```
 
-### 2.6 purchases, user_prices, user_progress, user_expenses
+### 2.6 purchases, user_prices, user_progress, user_expenses, user_tool_choices
 
 ```sql
 create table purchases (
@@ -693,6 +719,25 @@ alter table user_prices enable row level security;
 create policy "uprices_own" on user_prices for all
   using (exists (select 1 from purchases p where p.id = purchase_id and p.user_id = auth.uid()))
   with check (exists (select 1 from purchases p where p.id = purchase_id and p.user_id = auth.uid()));
+
+-- Выбор покупателя: какой вариант инструмента он берёт под каждую потребность
+create table user_tool_choices (
+  id uuid primary key default gen_random_uuid(),
+  purchase_id uuid not null references purchases(id) on delete cascade,
+  tool_id uuid not null references project_tools(id) on delete cascade,
+  variant_id uuid not null references tool_variants(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (purchase_id, tool_id)
+);
+create trigger set_updated_at before update on user_tool_choices
+  for each row execute procedure extensions.moddatetime(updated_at);
+alter table user_tool_choices enable row level security;
+create policy "utools_own" on user_tool_choices for all
+  using (exists (select 1 from purchases p where p.id = purchase_id and p.user_id = auth.uid()))
+  with check (exists (select 1 from purchases p where p.id = purchase_id and p.user_id = auth.uid()));
+-- Админ удалил выбранный вариант — выбор исчезает каскадом, покупатель возвращается
+-- к варианту «советуем новичку». Нет выбора — нет и строки: умолчание считает API.
 
 create table user_progress (
   id uuid primary key default gen_random_uuid(),
@@ -781,11 +826,12 @@ house_projects ─< stages ─< steps ─< step_parts >─ parts >─ materials
                          └────────< step_materials >─ materials
 house_projects ─< parts
 house_projects ─< bom_items >─ materials, stages
-house_projects ─< project_tools
+house_projects ─< project_tools ─< tool_variants
 foundation_rules (справочник без FK)
 profiles ─< purchases >─ house_projects, regions
 purchases ─< user_prices >─ materials
 purchases ─< user_progress >─ steps
+purchases ─< user_tool_choices >─ project_tools, tool_variants
 purchases ─< user_expenses >─ materials?, stages?
 purchases ─< foreman_messages >─ steps?
 promo_codes >─ house_projects?
