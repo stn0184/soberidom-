@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CloudOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StageSidebar } from '@/components/build/stage-sidebar';
+import { StageStart } from '@/components/build/stage-start';
 import { StepView } from '@/components/build/step-view';
 import type { BuildStage } from '@/components/build/build-types';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
@@ -15,10 +17,12 @@ import { enqueue, flushQueue, queueSize, sendProgress } from '@/lib/build/offlin
 import { ru } from '@/lib/i18n/ru';
 
 type State = { kind: 'loading' } | { kind: 'error' } | { kind: 'ready'; stages: BuildStage[] };
+// Что открыто. null — «как обычно», первый незавершённый шаг (US-007).
+type View = { kind: 'stage'; stageId: string } | { kind: 'step'; stepId: string };
 
 // Конструктор сборки (US-007): возврат открывает первый незавершённый шаг,
 // отметки — optimistic с офлайн-очередью (edge 1), авто-переход после «Готово».
-// initialStageId — вход с «карты путешествия» (ВИДЕНИЕ 2.2: свобода навигации).
+// Выбор этапа (карта, сайдбар) открывает экран начала этапа, а не шаг (спека 003).
 export function BuildView({
   purchaseId,
   initialStageId,
@@ -26,21 +30,19 @@ export function BuildView({
   purchaseId: string;
   initialStageId?: string;
 }) {
+  const router = useRouter();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [tick, setTick] = useState(0);
-  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
+  const [view, setView] = useState<View | null>(
+    initialStageId ? { kind: 'stage', stageId: initialStageId } : null
+  );
   const [pendingSync, setPendingSync] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     apiFetch<{ data: BuildStage[] }>(`/api/my/${purchaseId}/build`)
-      .then((body) => {
-        if (cancelled) return;
-        setState({ kind: 'ready', stages: body.data });
-      })
-      .catch(() => {
-        if (!cancelled) setState({ kind: 'error' });
-      });
+      .then((body) => !cancelled && setState({ kind: 'ready', stages: body.data }))
+      .catch(() => !cancelled && setState({ kind: 'error' }));
     return () => {
       cancelled = true;
     };
@@ -61,43 +63,45 @@ export function BuildView({
     return state.stages.flatMap((stage) => stage.steps.map((step) => ({ stage, step })));
   }, [state]);
 
-  // Первый незавершённый шаг (US-007); при входе с карты этапов — шаг этого этапа.
+  // Выбранный шаг, иначе первый незавершённый (US-007).
   const current = useMemo(() => {
-    if (flatSteps.length === 0) return null;
-    if (selectedStepId) {
-      const found = flatSteps.find((f) => f.step.id === selectedStepId);
-      if (found) return found;
-    }
-    if (initialStageId) {
-      const stageSteps = flatSteps.filter((f) => f.stage.id === initialStageId);
-      const target = stageSteps.find((f) => !f.step.done) ?? stageSteps[0];
-      if (target) return target;
-    }
-    return flatSteps.find((f) => !f.step.done) ?? flatSteps[flatSteps.length - 1];
-  }, [flatSteps, selectedStepId, initialStageId]);
+    const picked = view?.kind === 'step' ? flatSteps.find((f) => f.step.id === view.stepId) : null;
+    return picked ?? flatSteps.find((f) => !f.step.done) ?? flatSteps.at(-1) ?? null;
+  }, [flatSteps, view]);
 
-  const setStepDone = useCallback(
-    (stepId: string, done: boolean) => {
-      setState((prev) => {
-        if (prev.kind !== 'ready') return prev;
-        return {
-          kind: 'ready',
-          stages: prev.stages.map((stage) => ({
-            ...stage,
-            steps: stage.steps.map((s) => (s.id === stepId ? { ...s, done } : s)),
-          })),
-        };
-      });
-    },
-    []
-  );
+  const setStepDone = useCallback((stepId: string, done: boolean) => {
+    setState((prev) => {
+      if (prev.kind !== 'ready') return prev;
+      return {
+        kind: 'ready',
+        stages: prev.stages.map((stage) => ({
+          ...stage,
+          steps: stage.steps.map((s) => (s.id === stepId ? { ...s, done } : s)),
+        })),
+      };
+    });
+  }, []);
+
+  const reload = () => {
+    setState({ kind: 'loading' });
+    setTick((n) => n + 1);
+  };
+
+  // «Начать этап →»: первый невыполненный шаг этапа, иначе первый.
+  function openStage(stage: BuildStage) {
+    const step = stage.steps.find((s) => !s.done) ?? stage.steps[0];
+    if (step) setView({ kind: 'step', stepId: step.id });
+  }
 
   async function mark(stepId: string, done: boolean, advance: boolean) {
     setStepDone(stepId, done); // optimistic (edge 1)
-    if (advance && current) {
+    if (advance) {
       const idx = flatSteps.findIndex((f) => f.step.id === stepId);
       const next = flatSteps[idx + 1];
-      if (next) setSelectedStepId(next.step.id);
+      const sameStage = next && next.stage.id === flatSteps[idx].stage.id;
+      if (!next) router.push(`/my/${purchaseId}`); // конец стройки — на хаб покупки
+      else if (sameStage) setView({ kind: 'step', stepId: next.step.id });
+      else setView({ kind: 'stage', stageId: next.stage.id }); // граница этапа — его экран
     }
     try {
       await sendProgress({ purchaseId, stepId, done });
@@ -118,11 +122,7 @@ export function BuildView({
     return (
       <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
         <Skeleton className="h-64 w-full" />
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-2/3" />
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
-        </div>
+        <Skeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -132,14 +132,7 @@ export function BuildView({
       <Alert variant="destructive">
         <AlertDescription className="flex items-center justify-between gap-3">
           <span>{ru.admin.common.loadError}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setState({ kind: 'loading' });
-              setTick((n) => n + 1);
-            }}
-          >
+          <Button variant="outline" size="sm" onClick={reload}>
             {ru.common.retry}
           </Button>
         </AlertDescription>
@@ -156,10 +149,12 @@ export function BuildView({
     );
   }
 
+  // Несуществующий id этапа (чужая ссылка) — показываем шаг, как обычно.
+  const stageScreen =
+    view?.kind === 'stage' ? (state.stages.find((s) => s.id === view.stageId) ?? null) : null;
   const stageSteps = current.stage.steps;
   const stepIndexInStage = stageSteps.findIndex((s) => s.id === current.step.id);
-  const globalIndex = flatSteps.findIndex((f) => f.step.id === current.step.id);
-  const prev = globalIndex > 0 ? flatSteps[globalIndex - 1] : null;
+  const prev = flatSteps[flatSteps.findIndex((f) => f.step.id === current.step.id) - 1] ?? null;
 
   return (
     <div className="space-y-4">
@@ -170,29 +165,32 @@ export function BuildView({
         </Badge>
       )}
       <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
-        <aside>
-          <StageSidebar
-            stages={state.stages}
-            currentStageId={current.stage.id}
-            onSelectStage={(stageId) => {
-              const stage = state.stages.find((s) => s.id === stageId);
-              const first = stage?.steps.find((s) => !s.done) ?? stage?.steps[0];
-              if (first) setSelectedStepId(first.id);
-            }}
+        <StageSidebar
+          stages={state.stages}
+          currentStageId={stageScreen?.id ?? current.stage.id}
+          onSelectStage={(stageId) => setView({ kind: 'stage', stageId })}
+        />
+        {stageScreen ? (
+          <StageStart
+            key={stageScreen.id}
+            stage={stageScreen}
+            purchaseId={purchaseId}
+            onStart={() => openStage(stageScreen)}
           />
-        </aside>
-        <div className="min-w-0">
-          <StepView
-            key={current.step.id}
-            stage={current.stage}
-            step={current.step}
-            index={stepIndexInStage}
-            total={stageSteps.length}
-            onDone={() => void mark(current.step.id, true, true)}
-            onReopen={() => void mark(current.step.id, false, false)}
-            onBack={prev ? () => setSelectedStepId(prev.step.id) : null}
-          />
-        </div>
+        ) : (
+          <div className="min-w-0">
+            <StepView
+              key={current.step.id}
+              stage={current.stage}
+              step={current.step}
+              index={stepIndexInStage}
+              total={stageSteps.length}
+              onDone={() => void mark(current.step.id, true, true)}
+              onReopen={() => void mark(current.step.id, false, false)}
+              onBack={prev ? () => setView({ kind: 'step', stepId: prev.step.id }) : null}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
