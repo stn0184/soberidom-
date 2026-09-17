@@ -127,7 +127,7 @@ Alert + «Повторить»; мало данных — одна позици�
 - [x] `detailed.ts`: `pricePerM3Minor` в `EstimatePosition` (lumber с
       `volume_m3 > 0`, иначе `null`); выборка `materials` дополняется
       `category, volume_m3`.
-- [ ] `GET /api/my/[purchaseId]/build`: поле `durationDays` в этапе
+- [x] `GET /api/my/[purchaseId]/build`: поле `durationDays` в этапе
       (`getVisibleStages` уже читает `stages`), тип в `build-types.ts`.
 - [ ] Роут `GET /api/my/[purchaseId]/supplies?stage=` — материалы этапа +
       инструменты этапа; без региона — `materials: []`, `needRegion: true`;

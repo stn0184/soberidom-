@@ -67,6 +67,8 @@ function step(id: string, title: string, done: boolean): BuildStep {
   };
 }
 
+export const STAGE_DURATION_DAYS = 6;
+
 // Сайдбар конструктора: этап 3 открыт, часть шагов уже пройдена.
 export const STAGES: BuildStage[] = [
   {
@@ -76,6 +78,7 @@ export const STAGES: BuildStage[] = [
     displayName: 'Подготовка',
     color: 'purple',
     intro: '',
+    durationDays: null,
     steps: [step('p1', 'Разметка участка', true), step('p2', 'Завоз материалов', true)],
   },
   {
@@ -85,6 +88,7 @@ export const STAGES: BuildStage[] = [
     displayName: 'Фундамент',
     color: 'red',
     intro: '',
+    durationDays: null,
     steps: [step('f1', 'Разметка свай', true), step('f2', 'Завинчивание', true), step('f3', 'Оголовки', true)],
   },
   {
@@ -94,6 +98,7 @@ export const STAGES: BuildStage[] = [
     displayName: 'Пол',
     color: 'orange',
     intro: '',
+    durationDays: null,
     steps: [step('fl1', 'Обвязка', true), step('fl2', 'Лаги', true), step('fl3', 'Черновой пол', true)],
   },
   {
@@ -104,6 +109,7 @@ export const STAGES: BuildStage[] = [
     color: 'green',
     intro:
       'Собираем каркас стен лёжа на полу и поднимаем готовые щиты. Самый зрелищный этап: вечером у вас будет дом, а не платформа.',
+    durationDays: STAGE_DURATION_DAYS,
     steps: [
       step('w1', 'Разметка нижней обвязки', true),
       step('w2', 'Сборка первого щита', false),
@@ -119,6 +125,7 @@ export const STAGES: BuildStage[] = [
     displayName: 'Лофт',
     color: 'yellow',
     intro: '',
+    durationDays: null,
     steps: [step('l1', 'Балки лофта', false), step('l2', 'Настил', false)],
   },
   {
@@ -128,12 +135,12 @@ export const STAGES: BuildStage[] = [
     displayName: 'Крыша',
     color: 'blue',
     intro: '',
+    durationDays: null,
     steps: [step('r1', 'Стропила', false), step('r2', 'Обрешётка', false), step('r3', 'Кровля', false)],
   },
 ];
 
 export const CURRENT_STAGE = STAGES[3];
-export const STAGE_DURATION_DAYS = 6;
 
 function position(p: {
   id: string;

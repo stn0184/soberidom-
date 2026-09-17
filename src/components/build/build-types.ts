@@ -39,5 +39,6 @@ export type BuildStage = {
   displayName: string;
   color: string | null;
   intro: string;
+  durationDays: number | null; // чип «≈ N дн.» на экране начала этапа (спека 003)
   steps: BuildStep[];
 };

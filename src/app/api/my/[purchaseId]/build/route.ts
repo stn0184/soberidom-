@@ -81,6 +81,7 @@ export async function GET(_request: Request, { params }: Ctx) {
     displayName: stage.display_name || stage.title,
     color: stage.color,
     intro: stage.intro,
+    durationDays: stage.duration_days,
     steps: steps
       .filter((s) => s.stage_id === stage.id)
       .map((s) => ({
