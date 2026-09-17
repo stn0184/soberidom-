@@ -121,7 +121,7 @@ Alert + «Повторить»; мало данных — одна позици�
       пусто, без региона). Одобрен 17.09.2026, образец экрана —
       `src/app/prototype/003/stage-start-preview.tsx` и
       `stage-supplies-preview.tsx` (удаляются при закрытии этапа).
-- [ ] `formatMoneyMinor` в `src/lib/utils.ts`: символ валюты вместо кода
+- [x] `formatMoneyMinor` в `src/lib/utils.ts`: символ валюты вместо кода
       (`RUB → ₽`, `KZT → ₸`, `BYN → Br`, иначе код) — правило design.md §1;
       сама смета не меняется, только подпись валюты.
 - [ ] `detailed.ts`: `pricePerM3Minor` в `EstimatePosition` (lumber с
