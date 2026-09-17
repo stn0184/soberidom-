@@ -1,80 +1,149 @@
-# СобериДом — IKEA-инструкция для постройки каркасного дома
+# СобериДом — правила работы над кодом
 
-## Обзор
-Веб-сервис для людей без опыта стройки: подбор проекта каркасного дома по параметрам и местности, бесплатная витрина с 3D и предварительной сметой, платный пошаговый конструктор сборки. Единственный источник истины — SPEC.md (v1.5) в корне репозитория. При любом противоречии между кодом, этим файлом и SPEC.md побеждает SPEC.md.
+Веб-сервис «IKEA-инструкция для постройки каркасного дома»: подбор
+проекта по параметрам и региону, бесплатная витрина с 3D и предварительной
+сметой, платный пошаговый конструктор сборки с раскроем, живой сметой,
+план/фактом и волнами доставки. Аудитория — человек с нулевым опытом
+стройки (эталон — `UX_PRINCIPLES.md` §0).
 
-Ключевые функции:
-- Анкета-подбор + рекомендация фундамента по региону (формула СП 22.13330)
-- Витрина: 3D (GLB, слои), конфигуратор материалов, предварительная смета
-- Конструктор сборки: этапы → шаги с анатомией (зачем/подготовь/сделай/проверь себя), тренировки, ТБ
-- Живая смета (свои цены, артикулы ритейлеров), фин-отчёт план/факт, волны доставки
-- Инструменты купить/арендовать, скрипты переговоров, AI-«Добрый прораб» (Anthropic API)
+## Документы
 
-## Стек технологий
-- Frontend: Next.js 16 (App Router, Turbopack), TypeScript strict, Tailwind CSS v4, shadcn/ui, Lucide
-- 3D: three + @react-three/fiber + @react-three/drei (только в клиентских компонентах, dynamic import)
-- Backend: Supabase (PostgreSQL 15, Auth email+password, RLS, Storage)
-- AI: Anthropic Messages API (claude-sonnet-4-6), только серверные роуты
-- Письма: Resend. Платежи этап 1: ManualProvider (донат + активация админом)
-- Деплой: Vercel; Supabase Cloud
+У проекта своя история документов, фреймворк встроен в неё, а не поверх:
 
-## Архитектура
+| Роль во фреймворке | Файл в проекте |
+| --- | --- |
+| зачем (`idea.md`) | `PROJECT_IDEA.md` (v1.4) и `ВИДЕНИЕ_и_ПРИОРИТЕТЫ.md` — «северная звезда»: что до первых продаж, что после |
+| что строим (`spec.md`) | `SPEC.md` (v1.5) Блок 1 (user stories) и Блок 4 (экраны). Файл `spec.md` не заводится: на Windows он не отличим от `SPEC.md` |
+| как строим (`techspec.md`) | `techspec.md` — роутер на Блоки 2, 3, 5, 6 `SPEC.md` и `techspec/00-adr.md` |
+| как выглядит (`design.md`) | `design.md` + `UX_PRINCIPLES.md` (тон и запрет жаргона) |
+| очередь работ | `specs/README.md`; закрытые этапы — `specs/archive/` |
+| визуал до кода | `prototype/README.md` |
+
+**При противоречии кода и документов побеждает `SPEC.md`.** Эталонные
+тексты контента — `ЭТАЛОН_Этап0_Подготовка.md`, `ЭТАП1…ЭТАП10_*.md`.
+`HANDOFF.md` заморожен 2026-09-17 как история; состояние проекта — в
+очереди `specs/README.md` и git.
+
+**Читай раздел, а не документ.** Спека этапа в блоке «Читать» перечисляет
+свои разделы; начинай с них и не расширяй список молча. `SPEC.md` — 120 КБ,
+целиком его не читают: `grep -n '^### N\.'` даёт границы, `sed -n 'A,Bp'`
+читает нужное.
+
+Новую задачу начинать из очереди — `/sdd:spec-new`. **Большое визуальное
+изменение начинается с прототипа** (`/sdd:prototype`), не с кода.
+**Мелкая правка идёт мимо конвейера**: опечатка, текст, один файл —
+обычная сессия, коммит, ворота. Этап заводится, когда изменение трогает
+данные, доступ или несколько экранов.
+
+## Язык
+
+- Весь UI, тексты ошибок, пустые состояния — на русском, **только из
+  `src/lib/i18n/ru.ts`**; хардкод русских строк в JSX запрещён.
+- Ни одного строительного термина без объяснения рядом («заподлицо —
+  вровень с доской»); публикацию шага с голым жаргоном блокирует линтер
+  `src/lib/admin/linter.ts` (словарь — SPEC 5.10).
+- Имена файлов, идентификаторы, ключи БД — на английском; комментарии в
+  коде и сообщения коммитов — на русском («этап 3: витрина и смета»,
+  «спека 002: секция на лендинге»).
+
+## Стек
+
+Next.js 16.2 (App Router, Turbopack, `src/proxy.ts` вместо middleware),
+React 19, TypeScript strict, Tailwind CSS v4, shadcn/ui на `radix-ui`,
+Lucide, react-hook-form + Zod 4, Recharts. 3D — three + @react-three/fiber
++ drei. Backend — Supabase (PostgreSQL, Auth email+password, RLS, Storage)
+через `@supabase/ssr`; типы `src/types/database.ts` генерируются из базы.
+Письма — Resend. Платежи — `ManualProvider` (донат + активация админом),
+интерфейс в `src/lib/payments/provider.ts`. AI-прораб — Anthropic Messages
+API, только серверные роуты (этап не собран). Node 24. Прод — Vercel,
+автодеплой с `main`; Supabase Cloud, проект `soberidom`.
+
+## Инварианты
+
+Нарушение любого — баг уровня безопасности, а не стилистическая правка.
+
+1. Секреты только из окружения (`.env.local`, в git не попадают);
+   `.env.example` поддерживается актуальным.
+2. RLS включена на каждой таблице с политиками; `service_role` — только в
+   серверном коде, никогда в клиенте. Чужая покупка — 404, не 403 (не
+   раскрываем существование, SPEC edge 9).
+3. Изменение схемы — только миграцией в `supabase/migrations/NNN_*.sql`
+   (SQL берётся из SPEC Блок 2), затем regen типов. Правка схемы через
+   дашборд или REST без файла миграции запрещена.
+4. Деньги — `integer` в минорных единицах + `currency char(3)`; все id —
+   UUID; таблицы и колонки — snake_case.
+5. Ошибки API — единый формат `{ error: { code, message } }` (SPEC 3.0),
+   хелперы в `src/lib/api/helpers.ts`.
+6. Zod-схема одна на клиент и сервер — из `src/lib/zod/`.
+7. `any` запрещён; TypeScript strict.
+8. Каждый экран имеет состояния Loading (Skeleton) / Empty / Error
+   (Alert + Retry) — без исключений.
+9. three — только в клиентских компонентах через
+   `dynamic(() => import(...), { ssr: false })`.
+10. Один компонент — один файл, до 200 строк; импорты через `@/`.
+11. UI-примитивы только из `src/components/ui/` (shadcn); второй UI-kit
+    не заводится.
+
+## Слои
+
 ```
-src/
-├── app/
-│   ├── (public)/            # лендинг, quiz, projects/[slug], legal
-│   ├── (auth)/auth/         # login, register, reset
-│   ├── (cabinet)/my/        # [purchaseId]/{build,cutting,estimate,finance,delivery,tools,scripts,foreman}
-│   ├── admin/               # CRUD контента, активация покупок
-│   └── api/                 # роуты из SPEC.md Блок 3
-├── components/              # ui/ (shadcn), quiz/, three/, build/, estimate/, finance/, foreman/, admin/
-├── lib/
-│   ├── supabase/            # client.ts, server.ts, middleware.ts (@supabase/ssr)
-│   ├── estimate/calc.ts     # расчёт сметы (SPEC 5.2)
-│   ├── foundation/          # freezing.ts (dfn=d0·√Mt), rules.ts
-│   ├── cutting/ffd.ts       # раскрой First Fit Decreasing, пропил 4 мм
-│   ├── delivery/waves.ts    # волны, транспорт
-│   ├── foreman/prompt.ts    # system prompt прораба (запреты — SPEC 5.6)
-│   ├── payments/            # provider.ts (интерфейс), manual.ts
-│   ├── zod/                 # общие схемы (клиент+сервер одни и те же)
-│   └── i18n/ru.ts           # ВСЕ строки UI только здесь
-└── types/database.ts        # генерируется из Supabase
-supabase/migrations/         # SQL из SPEC.md Блок 2, файлы 001..010
+src/app/         маршруты: (public) (auth) (quiz) (cabinet)/my admin api/
+src/components/  ui/ (shadcn) · landing/ quiz/ three/ build/ estimate/ finance/ admin/
+src/lib/         supabase/ estimate/ foundation/ cutting/ delivery/ payments/ zod/ i18n/ api/ admin/ build/
+src/types/       database.ts — генерируется, руками не правится
+supabase/migrations/  001…025 (001–013 схема, 014–025 сиды Homesteader's Cabin)
 ```
 
-## Работа с Supabase
-- Изменения схемы — ТОЛЬКО через миграции в supabase/migrations/ (SQL уже написан в SPEC.md Блок 2 — копировать оттуда, не сочинять заново)
-- RLS обязательна на каждой таблице; service_role — только в серверном коде, НИКОГДА в клиенте
-- Типы после миграций: npx supabase gen types typescript --linked > src/types/database.ts
-- snake_case для таблиц/колонок; деньги INTEGER минорные единицы + currency char(3); все id UUID
+Зависимости сверху вниз: `app` → `components` → `lib` → `types`. `lib` не
+импортирует ни `app`, ни `components`. Бизнес-расчёты живут в `lib`
+(`estimate/calc.ts` — SPEC 5.2, `foundation/freezing.ts` — dfn=d0·√Mt,
+`cutting/ffd.ts` — FFD с пропилом 4 мм, `delivery/waves.ts` — волны и
+транспорт) и вызываются из API-роутов и Server Components. Server
+Components по умолчанию, `'use client'` только для интерактива.
 
-## Правила кодирования
-- TypeScript strict, запрещён any; ошибки API — единый формат { error: { code, message } } (SPEC 3.0)
-- Server Components по умолчанию; 'use client' только для интерактива; three — только dynamic(() => import(...), { ssr: false })
-- Один компонент = один файл, максимум 200 строк; импорты через @/
-- Все тексты интерфейса — из lib/i18n/ru.ts, хардкод русских строк в JSX запрещён
-- Каждый экран: состояния Loading (Skeleton) / Empty / Error (Alert + Retry) — без исключений
-- Zod-валидация на клиенте И сервере из одной схемы (lib/zod/)
-- Секреты только в .env.local; в коммиты не попадают (.gitignore); .env.example поддерживать актуальным
+## Чего не делаем
 
-## MCP
-- Context7: ВСЕГДА проверять актуальную документацию перед кодом с Next.js 16, Tailwind v4, Supabase, react-three-fiber
-- Supabase MCP: миграции, list_tables, проверка RLS
-- GitHub MCP: коммиты, PR
+- Генерации индивидуальных проектов по произвольным параметрам — только
+  готовые проекты из каталога (решение владельца 2026-09-17).
+- Ничего сверх `SPEC.md` и очереди `specs/`: идея, которой нет ни там, ни
+  там, — в бэклог `specs/README.md`, не в код. Отложенное «после первых
+  продаж» (прораб, видео, автоцены, сложные дома) — тоже там, это не
+  «никогда».
 
-## Субагенты
-- database-architect (Opus) — миграции из SPEC Блок 2, RLS, индексы, seed
-- backend-engineer (Sonnet) — API-роуты SPEC Блок 3, calc/ffd/waves/foundation, платёжный модуль
-- frontend-developer (Sonnet) — экраны SPEC Блок 4, shadcn, 3D-вьюер, состояния
-- qa-reviewer (Sonnet) — сверка со SPEC, edge cases Блок 6, безопасность RLS, линтер контента
+## MCP и инструменты
+
+- Context7 — проверять актуальную документацию перед кодом на Next.js 16,
+  Tailwind v4, Supabase, react-three-fiber.
+- Supabase MCP на Windows отваливается по таймауту; при отказе — миграции
+  файлом и `npx supabase db push`, не «починить через дашборд».
+- GitHub — через `gh` (аккаунт с правами на `stn0184/soberidom-`).
+- Пометки владельца на живом сайте — `.pins/pins.json` (прокси pins на
+  `localhost:4444`, dev-сервер на `:3000`); скилл `pins`.
 
 ## Команды
-- npm run dev — разработка (Turbopack)
-- npm run build && npm run lint — сборка и линт (перед каждым коммитом)
-- npx supabase db push — применить миграции
-- npx supabase gen types typescript --linked > src/types/database.ts — обновить типы
 
-## Порядок работы
-- Сборка строго по этапам из SPEC.md Приложение В (1→7); не начинать следующий этап, пока текущий не собран и не проходит build+lint
-- После каждого этапа — коммит с осмысленным сообщением на русском: "этап 3: витрина и смета"
-- Ничего не выдумывать сверх SPEC.md; вопросы и противоречия — фиксировать комментарием и спрашивать, а не решать молча
+```
+npm run dev                                   dev-сервер (Turbopack), :3000
+npm run build && npm run lint                 то же, что гоняют ворота
+npx supabase db push                          применить миграции
+npx supabase gen types typescript --linked > src/types/database.ts
+```
+
+## Сдача изменения
+
+Ворота — одна команда, записанная в `.claude/gate-cmd`
+(плейсхолдер `{since}` = базовый коммит этапа):
+
+```
+node scripts/gate.mjs --since <коммит>    ворота по диффу этапа
+node scripts/gate.mjs                     по рабочему дереву против HEAD
+node scripts/gate.mjs --only spec         только состояние спек
+node scripts/gate.mjs --only prototype    только связку спек с прототипами
+```
+
+Стековые проверки (lint, build) живут в массиве `CHECKS` в
+`scripts/gate.mjs` — здесь не перечисляются, чтобы списки не разошлись.
+
+Коммит — по завершении этапа или осмысленной правки, сообщение на русском.
+**Push — только по явной просьбе владельца**: push в `main` = деплой на
+прод.

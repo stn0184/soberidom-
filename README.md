@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# СобериДом
 
-## Getting Started
+IKEA-инструкция для постройки каркасного дома своими руками: подбор
+проекта по региону, бесплатная витрина с 3D и сметой, платный пошаговый
+конструктор с раскроем, живой сметой и волнами доставки.
+Прод — https://soberidom.vercel.app.
 
-First, run the development server:
+Документы: `PROJECT_IDEA.md` и `ВИДЕНИЕ_и_ПРИОРИТЕТЫ.md` (зачем) →
+`SPEC.md` (что и как; единственный источник истины) → `techspec.md`
+(указатель по разделам) → `design.md` + `UX_PRINCIPLES.md` (как выглядит).
+Правила работы — `CLAUDE.md`. Очередь работ — `specs/README.md`. Визуал
+большого изменения одобряется прототипом до кода — `prototype/README.md`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Запуск
+
+```
+npm install
+cp .env.example .env.local      # заполнить ключи Supabase
+npm run dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Проверка перед коммитом — ворота: `node scripts/gate.mjs`
+(lint + build + состояние спек).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Стек
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 · React 19 · TypeScript · Tailwind v4 · shadcn/ui ·
+three/react-three-fiber · Supabase (Postgres, Auth, RLS, Storage) ·
+Vercel.
