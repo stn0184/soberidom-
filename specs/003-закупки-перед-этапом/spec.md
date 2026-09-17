@@ -129,7 +129,7 @@ Alert + «Повторить»; мало данных — одна позици�
       `category, volume_m3`.
 - [x] `GET /api/my/[purchaseId]/build`: поле `durationDays` в этапе
       (`getVisibleStages` уже читает `stages`), тип в `build-types.ts`.
-- [ ] Роут `GET /api/my/[purchaseId]/supplies?stage=` — материалы этапа +
+- [x] Роут `GET /api/my/[purchaseId]/supplies?stage=` — материалы этапа +
       инструменты этапа; без региона — `materials: []`, `needRegion: true`;
       Zod-схема query в `src/lib/zod/`.
 - [ ] `build-types.ts`: тип ответа supplies; `ru.ts`: ключи
