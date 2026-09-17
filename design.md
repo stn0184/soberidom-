@@ -68,6 +68,8 @@
 | 3D-вьюер | `src/components/three/project-3d.tsx` | витрина (dynamic, ssr:false) |
 | Карта этапов («путешествие») | `src/components/build/journey-map.tsx` | хаб кабинета |
 | Конструктор: сайдбар, шаг, «возьмите» | `src/components/build/stage-sidebar.tsx`, `step-view.tsx`, `step-take.tsx` | `/my/[id]/build` |
+| Экран начала этапа | `src/components/build/stage-start.tsx` | `/my/[id]/build`, когда этап открыт из сайдбара или карты |
+| Закупки и инструменты этапа | `src/components/build/stage-supplies.tsx` | экран начала этапа |
 | Раскрой, доставка, инструменты | `src/components/build/cutting-view.tsx`, `delivery-view.tsx`, `tools-view.tsx` | кабинет |
 | Фин-отчёт | `src/components/finance/` | `/my/[id]/finance` |
 | Формы админки | `src/components/admin/` (`stage-form.tsx`, формы шагов, материалов) | `/admin` |
