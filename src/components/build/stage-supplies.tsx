@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Info, ShoppingCart, Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -26,13 +27,7 @@ const t = ru.build.stageStart;
 const te = ru.liveEstimate;
 const units = ru.admin.materials.units;
 
-const REC_VARIANT: Record<SuppliesTool['recommendation'], 'default' | 'secondary' | 'outline'> = {
-  buy: 'default',
-  rent: 'secondary',
-  borrow_or_buy_cheap: 'outline',
-};
-
-function SectionTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+export function SectionTitle({ icon, children }: { icon: React.ReactNode; children: string }) {
   return (
     <h2 className="flex items-center gap-2 text-xl font-semibold">
       <span className="text-primary">{icon}</span>
@@ -81,15 +76,11 @@ export function SuppliesMaterials({
     <section className="space-y-3">
       <SectionTitle icon={<ShoppingCart className="size-5" />}>{t.suppliesTitle}</SectionTitle>
       <p className="text-sm text-muted-foreground">{t.suppliesIntro}</p>
-
       <div className="max-w-md space-y-1.5">
         {/* Шкала имеет смысл от двух позиций; счётчик показываем всегда. */}
-        {materials.length > 1 && (
-          <Progress value={(done / materials.length) * 100} />
-        )}
+        {materials.length > 1 && <Progress value={(done / materials.length) * 100} />}
         <p className="text-sm text-muted-foreground">{t.progress(done, materials.length)}</p>
       </div>
-
       <Table>
         <TableHeader className="sticky top-0 z-10 bg-background">
           <TableRow>
@@ -118,16 +109,12 @@ export function SuppliesMaterials({
                     </Tooltip>
                   )}
                 </div>
-                {p.priceMissing && (
-                  <Badge variant="secondary" className="mt-0.5">
-                    {te.priceMissing}
-                  </Badge>
-                )}
+                {p.priceMissing && <Badge variant="secondary">{te.priceMissing}</Badge>}
               </TableCell>
               <TableCell>{p.qty}</TableCell>
               <TableCell>{units[p.unit as keyof typeof units] ?? p.unit}</TableCell>
               <TableCell>
-                {/* Цены нет — прочерк, не «0 ₽» (design.md §1) */}
+                {/* Цены нет — прочерк, а не «0 ₽»: цифра соврала бы (design.md §1). */}
                 <div>{p.priceMissing ? t.noPrice : formatMoneyMinor(p.priceMinor, currency)}</div>
                 {p.pricePerM3Minor !== null && (
                   <div className="text-xs text-muted-foreground">
@@ -149,7 +136,7 @@ export function SuppliesMaterials({
           ))}
         </TableBody>
       </Table>
-
+      {/* Позиции без цены в итог не входят — иначе он выглядел бы полным. */}
       <div className="flex items-baseline justify-end gap-2 text-sm">
         <span className="font-medium">{t.stageTotal(formatMoneyMinor(totalMinor, currency))}</span>
         {missing > 0 && <Badge variant="secondary">{t.totalApprox(missing)}</Badge>}
@@ -158,22 +145,31 @@ export function SuppliesMaterials({
   );
 }
 
+// «Покупка: 6 000 ₽ · Аренда: 900 ₽/день × 3 дн.» — аренды может не быть.
+function toolPrice(tool: SuppliesTool, currency: string): string {
+  const buy = ru.tools.price(formatMoneyMinor(tool.approxPriceMinor, currency));
+  if (tool.approxRentDayMinor === null) return buy;
+  const rent = ru.tools.rent(formatMoneyMinor(tool.approxRentDayMinor, currency), tool.daysNeeded);
+  return `${buy} · ${rent}`;
+}
+
 // «И это понадобится» (ВИДЕНИЕ 2.4): купить/арендовать/одолжить и чем обойтись.
 export function SuppliesTools({
   tools,
   currency,
-  allToolsHref,
+  toolsHref,
 }: {
   tools: SuppliesTool[];
   currency: string;
-  allToolsHref: React.ReactNode;
+  toolsHref: string;
 }) {
-  const tt = ru.tools;
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <SectionTitle icon={<Wrench className="size-5" />}>{t.toolsTitle}</SectionTitle>
-        {allToolsHref}
+        <Link href={toolsHref} className="shrink-0 text-sm text-primary hover:underline">
+          {t.toolsAll}
+        </Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {tools.map((tool) => (
@@ -181,25 +177,17 @@ export function SuppliesTools({
             <CardHeader>
               <div className="flex items-center justify-between gap-2">
                 <CardTitle className="text-base">{tool.name}</CardTitle>
-                <Badge variant={REC_VARIANT[tool.recommendation]}>
-                  {tt.recommendation[tool.recommendation]}
+                <Badge variant={tool.recommendation === 'buy' ? 'default' : 'secondary'}>
+                  {ru.tools.recommendation[tool.recommendation]}
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">{tool.reason}</p>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <p>
-                {tt.price(formatMoneyMinor(tool.approxPriceMinor, currency))}
-                {tool.approxRentDayMinor !== null && (
-                  <>
-                    {' · '}
-                    {tt.rent(formatMoneyMinor(tool.approxRentDayMinor, currency), tool.daysNeeded)}
-                  </>
-                )}
-              </p>
+              <p>{toolPrice(tool, currency)}</p>
               {tool.alternative && (
                 <p className="text-muted-foreground">
-                  {tt.alternative}: {tool.alternative}
+                  {ru.tools.alternative}: {tool.alternative}
                 </p>
               )}
             </CardContent>

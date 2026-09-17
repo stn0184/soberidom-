@@ -3,7 +3,8 @@
 import { cn } from '@/lib/utils';
 import type { BuildStage } from '@/components/build/build-types';
 
-const COLOR_DOT: Record<string, string> = {
+// Цвет этапа кружком — общий словарь для сайдбара и экрана начала этапа.
+export const COLOR_DOT: Record<string, string> = {
   red: 'bg-red-500',
   green: 'bg-green-500',
   yellow: 'bg-yellow-400',
@@ -13,7 +14,8 @@ const COLOR_DOT: Record<string, string> = {
 };
 
 // Сайдбар этапов (SPEC 4.7, v1.5): цветовой маркер + display_name + mini-progress.
-// Блокировок нет — все этапы открыты.
+// Блокировок нет — все этапы открыты. Клик по этапу открывает экран начала
+// этапа (спека 003), а не сразу шаг.
 export function StageSidebar({
   stages,
   currentStageId,
