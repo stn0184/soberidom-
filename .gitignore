@@ -40,3 +40,4 @@ next-env.d.ts
 .mcp.json
 supabase/.temp/
 .pins/
+.claude/gate-base
