@@ -210,7 +210,7 @@ utilities 5. «Все» = 11 кодов (55 дн.), «все, кроме site_pr
 - [x] Миграция `026_tool_variants.sql`: `tool_variants`,
       `user_tool_choices`, RLS; тот же коммит — `SPEC.md` §2.4, §2.6;
       `npx supabase db push`; regen `src/types/database.ts`.
-- [ ] Zod: `toolSchema`, `toolVariantSchema` (+ `Update`), схема тела
+- [x] Zod: `toolSchema`, `toolVariantSchema` (+ `Update`), схема тела
       `PUT /choice`; типы `ToolRow`, `ToolVariantRow` в `lib/admin/types.ts`.
 - [ ] Админ-роуты `/api/admin/tools`, `/api/admin/tools/[id]`,
       `/api/admin/tool-variants`, `/api/admin/tool-variants/[id]`.

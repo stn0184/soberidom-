@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ru } from '@/lib/i18n/ru';
 
 // Схемы зеркалят таблицы SPEC Блок 2 (3.16: «Zod-схемы зеркалят таблицы»).
 // Ключи — snake_case, как в БД. Сообщения Zod — по-русски (готовая локаль).
@@ -88,6 +89,45 @@ export const partSchema = z.object({
 });
 export const partUpdateSchema = partSchema.partial();
 export type PartInput = z.infer<typeof partSchema>;
+
+// Инструмент = потребность + варианты (спека 004). project_tools — потребность:
+// «Пилить доски», зачем она, сколько дней нужна и на каких этапах. Старые колонки
+// плоской модели (recommendation, approx_price_minor, alternative) в схему не входят.
+export const toolSchema = z.object({
+  project_id: z.uuid(),
+  name: z.string().trim().min(1),
+  category: z.enum(['measure', 'hand', 'power', 'level', 'safety', 'special']),
+  reason: z.string().trim().min(1),
+  days_needed: z.number().int().min(1).max(365),
+  stage_codes: z.array(z.string().trim().min(1)),
+  sort: z.number().int().min(0),
+});
+export const toolUpdateSchema = toolSchema.partial();
+export type ToolInput = z.infer<typeof toolSchema>;
+
+// Вариант инструмента: хотя бы одна цена задана — «только аренда» (нейлер, леса)
+// живёт с price_minor = null, «только покупка» — с rent_day_minor = null.
+const toolVariantFields = z.object({
+  tool_id: z.uuid(),
+  name: z.string().trim().min(1),
+  description: z.string().trim(),
+  recommendation: z.enum(['buy', 'rent', 'borrow_or_buy_cheap']),
+  price_minor: z.number().int().min(0).max(100_000_000).nullable(),
+  rent_day_minor: z.number().int().min(0).max(100_000_000).nullable(),
+  speed_note: z.string().trim(),
+  is_beginner_choice: z.boolean(),
+  sort: z.number().int().min(0),
+});
+const bothPricesEmpty = (v: { price_minor?: number | null; rent_day_minor?: number | null }) =>
+  v.price_minor === null && v.rent_day_minor === null;
+export const toolVariantSchema = toolVariantFields.refine(
+  (v) => !bothPricesEmpty(v),
+  ru.admin.tools.errVariantPrice,
+);
+export const toolVariantUpdateSchema = toolVariantFields
+  .partial()
+  .refine((v) => !bothPricesEmpty(v), ru.admin.tools.errVariantPrice);
+export type ToolVariantInput = z.infer<typeof toolVariantFields>;
 
 // Опции конфигуратора + поля «человеческого» показа (UX_PRINCIPLES, миграция 010).
 export const configOptionSchema = z.object({

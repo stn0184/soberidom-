@@ -1,5 +1,5 @@
 import type { Database } from '@/types/database';
-import type { PartInput, ProjectInput } from '@/lib/zod/admin';
+import type { PartInput, ProjectInput, ToolInput, ToolVariantInput } from '@/lib/zod/admin';
 
 // Типы строк — из сгенерированных Supabase-типов (src/types/database.ts).
 // Поля jsonb и check-констрейнтов генератор типизирует как Json/string,
@@ -41,6 +41,14 @@ export type PartRow = Omit<Tables['parts']['Row'], 'color' | 'applies_when'> & {
 
 export type ConfigOptionRow = Omit<Tables['config_options']['Row'], 'group_key'> & {
   group_key: 'lumber' | 'roofing' | 'finish_ext' | 'finish_int' | 'foundation';
+};
+
+export type ToolRow = Omit<Tables['project_tools']['Row'], 'category'> & {
+  category: ToolInput['category'];
+};
+
+export type ToolVariantRow = Omit<Tables['tool_variants']['Row'], 'recommendation'> & {
+  recommendation: ToolVariantInput['recommendation'];
 };
 
 export type MaterialRow = Tables['materials']['Row'];
