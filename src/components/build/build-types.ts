@@ -46,17 +46,23 @@ export type BuildStage = {
 };
 
 // Ответ GET /api/my/[purchaseId]/supplies (спека 003): закупки перед этапом.
-// Инструмент — той же формы, что в ответе /tools (SPEC 3.14a).
+// Инструмент — потребность с действующим вариантом (спека 004): экран этапа
+// показывает один вариант строкой, а выбор живёт на /tools.
 export type SuppliesTool = {
+  id: string;
   name: string;
-  category: string;
-  recommendation: 'buy' | 'rent' | 'borrow_or_buy_cheap';
   reason: string;
-  approxPriceMinor: number;
-  approxRentDayMinor: number | null;
   daysNeeded: number;
-  alternative: string;
-  stages: string[];
+  variantCount: number;
+  variant: {
+    id: string;
+    name: string;
+    recommendation: 'buy' | 'rent' | 'borrow_or_buy_cheap';
+    priceMinor: number | null;
+    rentDayMinor: number | null;
+  };
+  isChosen: boolean;
+  firstStageId: string;
 };
 
 export type SuppliesResponse = {

@@ -2,10 +2,31 @@ import { NextResponse } from 'next/server';
 import { apiError, requireOwnerPurchase, validationError } from '@/lib/api/helpers';
 import { getVisibleStages } from '@/lib/build/progress';
 import { calcEstimateDetailed } from '@/lib/estimate/detailed';
+import { effectiveVariant, type Recommendation } from '@/lib/tools/effective';
 import { suppliesQuerySchema } from '@/lib/zod/supplies';
 import { ru } from '@/lib/i18n/ru';
 
 type Ctx = { params: Promise<{ purchaseId: string }> };
+
+type ToolVariantRow = {
+  id: string;
+  name: string;
+  recommendation: Recommendation;
+  price_minor: number | null;
+  rent_day_minor: number | null;
+  is_beginner_choice: boolean;
+  sort: number;
+};
+
+const toVariant = (v: ToolVariantRow) => ({
+  id: v.id,
+  name: v.name,
+  recommendation: v.recommendation,
+  priceMinor: v.price_minor,
+  rentDayMinor: v.rent_day_minor,
+  isBeginnerChoice: v.is_beginner_choice,
+  sort: v.sort,
+});
 
 // Закупки перед этапом (спека 003, ВИДЕНИЕ 2.3): позиции BOM этого этапа и
 // инструменты, у которых код этапа есть в stage_codes. Отдельного экрана в
@@ -28,27 +49,40 @@ export async function GET(request: Request, { params }: Ctx) {
   // Этап чужого проекта или скрытый конфигурацией (edge 19) — 404, как чужая покупка.
   if (!stage) return apiError('NOT_FOUND', ru.api.notFound);
 
-  const { data: toolRows } = await db
-    .from('project_tools')
-    .select('*')
-    .eq('project_id', purchase.project_id)
-    .order('sort');
-  const stageNameByCode = new Map(stages.map((s) => [s.code, s.display_name || s.title]));
+  const [{ data: toolRows }, { data: choices }] = await Promise.all([
+    db
+      .from('project_tools')
+      .select('*, tool_variants(*)')
+      .eq('project_id', purchase.project_id)
+      .order('sort')
+      .order('sort', { referencedTable: 'tool_variants' }),
+    db.from('user_tool_choices').select('tool_id, variant_id').eq('purchase_id', purchase.id),
+  ]);
+  const chosenByTool = new Map<string, string>(
+    (choices ?? []).map((c: { tool_id: string; variant_id: string }) => [c.tool_id, c.variant_id])
+  );
+
+  // firstStageId — первый видимый этап потребности: по нему экран этапа
+  // отделяет «купите сейчас» от «уже должно быть у вас» (спека 004).
   const tools = (toolRows ?? [])
     .filter((t) => ((t.stage_codes ?? []) as string[]).includes(stage.code))
-    .map((t) => ({
-      name: t.name,
-      category: t.category,
-      recommendation: t.recommendation,
-      reason: t.reason,
-      approxPriceMinor: t.approx_price_minor,
-      approxRentDayMinor: t.approx_rent_day_minor,
-      daysNeeded: t.days_needed,
-      alternative: t.alternative,
-      stages: ((t.stage_codes ?? []) as string[])
-        .map((code) => stageNameByCode.get(code) ?? code)
-        .filter(Boolean),
-    }));
+    .map((t) => {
+      const codes = (t.stage_codes ?? []) as string[];
+      const chosenVariantId = chosenByTool.get(t.id as string) ?? null;
+      const variants = ((t.tool_variants ?? []) as ToolVariantRow[]).map(toVariant);
+      const variant = effectiveVariant({ variants, chosenVariantId });
+      return {
+        id: t.id as string,
+        name: t.name as string,
+        reason: t.reason as string,
+        daysNeeded: t.days_needed as number,
+        variantCount: variants.length,
+        variant,
+        isChosen: variant !== null && variant.id === chosenVariantId,
+        firstStageId: stages.find((s) => codes.includes(s.code))?.id ?? stage.id,
+      };
+    })
+    .filter((t) => t.variant !== null);
 
   if (!purchase.region_id) {
     return NextResponse.json({

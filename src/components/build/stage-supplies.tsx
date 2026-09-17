@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Info, ShoppingCart, Wrench } from 'lucide-react';
+import { Info, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -17,7 +15,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { SuppliesTool } from '@/components/build/build-types';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import type { EstimatePosition } from '@/lib/estimate/detailed';
 import { formatMoneyMinor } from '@/lib/utils';
@@ -142,59 +139,6 @@ export function SuppliesMaterials({
           {missing > 0 && <Badge variant="secondary">{t.totalApprox(missing)}</Badge>}
         </div>
       )}
-    </section>
-  );
-}
-
-// «Покупка: 6 000 ₽ · Аренда: 900 ₽/день × 3 дн.» — аренды может не быть.
-function toolPrice(tool: SuppliesTool, currency: string): string {
-  const buy = ru.tools.price(formatMoneyMinor(tool.approxPriceMinor, currency));
-  if (tool.approxRentDayMinor === null) return buy;
-  const rent = ru.tools.rent(formatMoneyMinor(tool.approxRentDayMinor, currency), tool.daysNeeded);
-  return `${buy} · ${rent}`;
-}
-
-// «И это понадобится» (ВИДЕНИЕ 2.4): купить/арендовать/одолжить и чем обойтись.
-export function SuppliesTools({
-  tools,
-  currency,
-  toolsHref,
-}: {
-  tools: SuppliesTool[];
-  currency: string;
-  toolsHref: string;
-}) {
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <SectionTitle icon={<Wrench className="size-5" />}>{t.toolsTitle}</SectionTitle>
-        <Link href={toolsHref} className="shrink-0 text-sm text-primary hover:underline">
-          {t.toolsAll}
-        </Link>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {tools.map((tool) => (
-          <Card key={tool.name}>
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <CardTitle className="text-base">{tool.name}</CardTitle>
-                <Badge variant={tool.recommendation === 'buy' ? 'default' : 'secondary'}>
-                  {ru.tools.recommendation[tool.recommendation]}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">{tool.reason}</p>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>{toolPrice(tool, currency)}</p>
-              {tool.alternative && (
-                <p className="text-muted-foreground">
-                  {ru.tools.alternative}: {tool.alternative}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </section>
   );
 }

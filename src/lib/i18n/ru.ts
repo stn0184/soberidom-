@@ -896,7 +896,6 @@ export const ru = {
     buyTotal: 'Купить ≈',
     rentTotal: 'Арендовать ≈',
     byYourChoice: 'по вашему выбору',
-    approx: (sum: string) => `≈ ${sum}`,
     filterCategory: 'Категория',
     filterAll: 'Все категории',
     categories: {
@@ -923,9 +922,6 @@ export const ru = {
     advised: 'Советуем новичку',
     beginnerBadge: 'Для новичка',
     chooseError: 'Не получилось сохранить выбор — попробуйте ещё раз',
-    price: (sum: string) => `Покупка: ${sum}`,
-    rent: (sum: string, days: number) => `Аренда: ${sum}/день × ${days} дн.`,
-    alternative: 'Альтернатива',
     emptyTitle: 'Список инструментов пока пуст',
     emptyText: 'Он появится вместе с содержанием проекта — мы сейчас его пишем.',
   },

@@ -11,11 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BuildStage, SuppliesResponse } from '@/components/build/build-types';
 import { COLOR_DOT } from '@/components/build/stage-sidebar';
-import {
-  SectionTitle,
-  SuppliesMaterials,
-  SuppliesTools,
-} from '@/components/build/stage-supplies';
+import { SectionTitle, SuppliesMaterials } from '@/components/build/stage-supplies';
+import { StageTools } from '@/components/build/stage-tools';
 import { RegionCombobox, type RegionOption } from '@/components/quiz/region-combobox';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import { cn } from '@/lib/utils';
@@ -75,7 +72,7 @@ export function StageStart({
         {stage.intro && <p className="max-w-2xl text-base text-muted-foreground">{stage.intro}</p>}
       </header>
 
-      <Supplies state={state} purchaseId={purchaseId} reload={reload} />
+      <Supplies state={state} purchaseId={purchaseId} stageId={stage.id} reload={reload} />
 
       <div className="flex flex-wrap items-center gap-4 border-t pt-6">
         {/* Кнопка на месте всегда: экран подсказывает, а не запирает (ВИДЕНИЕ 2.2). */}
@@ -93,10 +90,12 @@ export function StageStart({
 function Supplies({
   state,
   purchaseId,
+  stageId,
   reload,
 }: {
   state: State;
   purchaseId: string;
+  stageId: string;
   reload: () => void;
 }) {
   const [region, setRegion] = useState<RegionOption | null>(null);
@@ -140,7 +139,12 @@ function Supplies({
   const { data, meta } = state.value;
   const toolsHref = `/my/${purchaseId}/tools`;
   const tools = data.tools.length > 0 && (
-    <SuppliesTools tools={data.tools} currency={data.currency} toolsHref={toolsHref} />
+    <StageTools
+      tools={data.tools}
+      stageId={stageId}
+      currency={data.currency}
+      toolsHref={toolsHref}
+    />
   );
 
   // Без региона цен нет — спрашиваем город прямо здесь, как в живой смете.
