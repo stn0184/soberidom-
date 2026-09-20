@@ -17,7 +17,12 @@ export async function PATCH(request: Request, { params }: Ctx) {
     .eq('id', id)
     .select()
     .maybeSingle();
-  if (error) return dbError(error);
+  // Подпись уже занята другим предложением — понятный текст, не 500.
+  if (error) {
+    return error.code === '23505'
+      ? apiError('VALIDATION_ERROR', ru.admin.materials.priceDuplicate)
+      : dbError(error);
+  }
   if (!data) return apiError('NOT_FOUND', ru.api.notFound);
   return NextResponse.json({ data });
 }

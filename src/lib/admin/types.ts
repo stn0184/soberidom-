@@ -65,3 +65,5 @@ export type MaterialPriceRow = Omit<Tables['material_prices']['Row'], 'source_ki
   source_kind: PriceInput['source_kind']; // check-констрейнт вида источника
 };
 export type RegionRow = Tables['regions']['Row'];
+// Ритейлер в форме цены: роут отдаёт только то, чем заполняется select.
+export type RetailerRow = Pick<Tables['retailers']['Row'], 'id' | 'name' | 'country_code'>;

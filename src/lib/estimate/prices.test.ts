@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseMoneyToMinor, pickPrice, type PriceOffer } from './prices.ts';
+import {
+  isStale,
+  parseMoneyToMinor,
+  pickPrice,
+  staleBefore,
+  type PriceOffer,
+} from './prices.ts';
 
 // Выбор предложения в смету и разбор цены из прайса (спека 005).
 // Запуск: node --test src/lib/estimate/prices.test.ts
@@ -118,4 +124,11 @@ test('не число и отрицательная цена — не цена',
   assert.equal(parseMoneyToMinor(''), null);
   assert.equal(parseMoneyToMinor('дорого'), null);
   assert.equal(parseMoneyToMinor('-10'), null);
+});
+
+// Тот же порог, что isStale, но датой — админке нужен фильтр для запроса.
+test('граница устаревания: строго раньше даты — устарело', () => {
+  assert.equal(staleBefore('2026-09-20'), '2026-07-22'); // −60 дней
+  assert.equal(isStale('2026-07-22', '2026-09-20'), false); // ровно 60 дней — свежая
+  assert.equal(isStale('2026-07-21', '2026-09-20'), true); // раньше границы — устарела
 });

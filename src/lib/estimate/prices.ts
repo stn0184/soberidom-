@@ -40,6 +40,15 @@ export function isStale(checkedAt: string, today: string): boolean {
   return Number.isFinite(days) && days > PRICE_STALE_DAYS;
 }
 
+// Граница устаревания датой: предложения с checked_at строго раньше неё
+// устарели. Нужна админке — считать «сколько цен старше порога» в запросе
+// к базе, не вытаскивая строки. Правило то же, что у isStale.
+export function staleBefore(today: string): string {
+  return new Date(dayNumber(today) * DAY_MS - PRICE_STALE_DAYS * DAY_MS)
+    .toISOString()
+    .slice(0, 10);
+}
+
 // Дешевле → свежее → меньший id. Последнее — чтобы порядок не зависел от
 // того, в каком порядке строки вернула база.
 function byPrice(a: PriceOffer, b: PriceOffer): number {

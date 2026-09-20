@@ -175,7 +175,7 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
       `stage-supplies.tsx` на нём; `estimate-panel.tsx` — строка «цены
       проверены до…».
 - [x] `csv.ts` — колонки «Источник», «Проверено».
-- [ ] Админка: `material-prices.tsx` (поля источника, «Проверено сегодня»,
+- [x] Админка: `material-prices.tsx` (поля источника, «Проверено сегодня»,
       бейдж «устарела»); `GET /api/admin/prices?stale=1`; `prices-import.tsx`
       + `POST /api/admin/import/prices`; счётчик и блок импорта на
       `/admin/materials`.
