@@ -54,6 +54,11 @@ export async function GET(request: NextRequest, { params }: Ctx) {
       totalMinor: estimate.totalMinor,
       byStage: estimate.byStage,
     },
-    meta: { priceMissingCount: estimate.priceMissingCount }, // edge case 4
+    meta: {
+      priceMissingCount: estimate.priceMissingCount, // edge case 4
+      // Честность сметы (спека 005): до какой даты цены проверены.
+      pricesCheckedOldest: estimate.pricesCheckedOldest,
+      staleCount: estimate.staleCount,
+    },
   });
 }

@@ -1,5 +1,12 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { appliesTo, type EstimateConfig } from '@/lib/estimate/calc';
+import {
+  PRICE_OFFER_COLUMNS,
+  pickPricesByMaterial,
+  todayIso,
+  type OfferView,
+  type PriceRow,
+} from '@/lib/estimate/prices';
 
 // Живая смета с позициями (SPEC 3.11, 5.2): цены user_prices → регион → страна;
 // purchased — по наличию user_expense с материалом (US-009); storage_tip — HANDOFF.
@@ -12,6 +19,10 @@ export type EstimatePosition = {
   priceMinor: number;
   isUserPrice: boolean;
   priceMissing: boolean;
+  // Откуда цена и когда проверена (спека 005). source — предложение, вошедшее
+  // в смету (у своей цены null: подпись «ваша цена»), offers — все подходящие.
+  source: OfferView | null;
+  offers: OfferView[];
   sku: { retailer: string; sku: string; url: string } | null;
   amountMinor: number;
   stageCode: string;
@@ -74,7 +85,7 @@ export async function calcEstimateDetailed(
       db.from('materials').select('id, name, unit, storage_tip, category, volume_m3').in('id', materialIds),
       db
         .from('material_prices')
-        .select('material_id, region_id, price_minor')
+        .select(PRICE_OFFER_COLUMNS)
         .in('material_id', materialIds)
         .eq('country_code', region.country_code),
       db
@@ -97,15 +108,13 @@ export async function calcEstimateDetailed(
   const userPriceById = new Map(
     (userPrices ?? []).map((u) => [u.material_id as string, u.price_minor as number])
   );
-  const basePriceById = new Map<string, number>();
-  for (const p of prices ?? []) {
-    if (p.region_id === params.regionId) basePriceById.set(p.material_id, p.price_minor);
-  }
-  for (const p of prices ?? []) {
-    if (p.region_id === null && !basePriceById.has(p.material_id)) {
-      basePriceById.set(p.material_id, p.price_minor);
-    }
-  }
+  // Цена базы — самое дешёвое предложение региона, иначе страны (SPEC 5.2 п.3);
+  // своя цена покупателя всё равно главнее (US-009).
+  const pickedByMaterial = pickPricesByMaterial(
+    (prices ?? []) as PriceRow[],
+    params.regionId,
+    todayIso()
+  );
   type SkuEmbed = { name: string } | null;
   const skuById = new Map<string, { retailer: string; sku: string; url: string }>();
   for (const s of skus ?? []) {
@@ -134,8 +143,8 @@ export async function calcEstimateDetailed(
     if (!material || !stage) continue;
     const qty = material.unit === 'pcs' ? Math.ceil(entry.qty) : entry.qty;
     const userPrice = userPriceById.get(entry.materialId);
-    const basePrice = basePriceById.get(entry.materialId);
-    const price = userPrice ?? basePrice;
+    const picked = pickedByMaterial.get(entry.materialId);
+    const price = userPrice ?? picked?.priceMinor;
     withSort.push({
       materialId: entry.materialId,
       name: material.name,
@@ -145,6 +154,8 @@ export async function calcEstimateDetailed(
       priceMinor: price ?? 0,
       isUserPrice: userPrice !== undefined,
       priceMissing: price === undefined, // позиция входит с price=0 (edge 4)
+      source: userPrice !== undefined ? null : picked?.source ?? null,
+      offers: picked?.offers ?? [],
       sku: skuById.get(entry.materialId) ?? null,
       amountMinor: price === undefined ? 0 : Math.round(qty * price),
       stageCode: stage.code,
@@ -165,6 +176,8 @@ export async function calcEstimateDetailed(
     priceMinor: p.priceMinor,
     isUserPrice: p.isUserPrice,
     priceMissing: p.priceMissing,
+    source: p.source,
+    offers: p.offers,
     sku: p.sku,
     amountMinor: p.amountMinor,
     stageCode: p.stageCode,

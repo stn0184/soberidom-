@@ -71,6 +71,47 @@ export function pickPrice(
   return { priceMinor: sorted[0].priceMinor, source: sorted[0], offers: sorted };
 }
 
+// Строка material_prices, как её читают calc.ts и detailed.ts.
+export type PriceRow = {
+  id: string;
+  material_id: string;
+  region_id: string | null;
+  price_minor: number;
+  source_label: string;
+  source_url: string;
+  checked_at: string;
+};
+
+export const PRICE_OFFER_COLUMNS =
+  'id, material_id, region_id, price_minor, source_label, source_url, checked_at';
+
+// Предложения из базы → выбранная цена по каждому материалу.
+export function pickPricesByMaterial(
+  rows: PriceRow[],
+  regionId: string,
+  today: string
+): Map<string, PickedPrice> {
+  const byMaterial = new Map<string, PriceOffer[]>();
+  for (const r of rows) {
+    const list = byMaterial.get(r.material_id) ?? [];
+    list.push({
+      id: r.id,
+      regionId: r.region_id,
+      priceMinor: r.price_minor,
+      label: r.source_label,
+      url: r.source_url,
+      checkedAt: r.checked_at,
+    });
+    byMaterial.set(r.material_id, list);
+  }
+  const picked = new Map<string, PickedPrice>();
+  for (const [materialId, offers] of byMaterial) {
+    const best = pickPrice(offers, regionId, today);
+    if (best) picked.set(materialId, best);
+  }
+  return picked;
+}
+
 // Цена из прайса, как её выгружает Excel: «820», «820.50», «820,50»,
 // «1 234,50» (в том числе с неразрывным пробелом). Не число — не цена.
 export function parseMoneyToMinor(text: string): number | null {

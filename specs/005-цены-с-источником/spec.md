@@ -164,7 +164,7 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
       `prices.test.ts` (красный до реализации): регион дешевле страны /
       только страна / пусто / порог ровно 60 дней / равные цены —
       побеждает свежее / сортировка offers.
-- [ ] `calc.ts` и `detailed.ts` на `pickPrice`; `EstimatePosition.source`,
+- [x] `calc.ts` и `detailed.ts` на `pickPrice`; `EstimatePosition.source`,
       `.offers`; `EstimateResult.meta.pricesCheckedOldest`, `staleCount`;
       `/supplies` пробрасывает `source`/`offers`.
 - [ ] Zod: `priceSchema` с новыми полями, `priceUpdateSchema`,

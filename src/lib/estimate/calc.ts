@@ -1,4 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  PRICE_OFFER_COLUMNS,
+  pickPricesByMaterial,
+  todayIso,
+  type PriceRow,
+} from '@/lib/estimate/prices';
 
 // Расчёт сметы (SPEC 5.2). purchaseId/user_prices появятся на этапе 5.
 export type EstimateConfig = Record<string, string>;
@@ -14,6 +20,10 @@ export type EstimateResult = {
   totalMinor: number;
   byStage: EstimateStageRow[];
   priceMissingCount: number; // edge case 4: позиции без цены (price=0)
+  // Честность сметы (спека 005): до какой даты цены проверены и сколько
+  // из них старше порога — обе цифры про цены, вошедшие в итог.
+  pricesCheckedOldest: string | null;
+  staleCount: number;
 };
 
 // applies_when ⊆ config: каждый ключ существует в config с тем же значением (SPEC 5.2 п.2).
@@ -61,32 +71,32 @@ export async function calcEstimate(
     materialIds.length
       ? db
           .from('material_prices')
-          .select('material_id, region_id, price_minor')
+          .select(PRICE_OFFER_COLUMNS)
           .in('material_id', materialIds)
           .eq('country_code', region.country_code)
       : Promise.resolve({ data: [] }),
   ]);
 
   const unitById = new Map((materials ?? []).map((m) => [m.id as string, m.unit as string]));
-  // Приоритет цены: точный регион → вся страна (region_id null); SPEC 5.2 п.3.
-  const priceById = new Map<string, number>();
-  for (const p of prices ?? []) {
-    if (p.region_id === params.regionId) priceById.set(p.material_id, p.price_minor);
-  }
-  for (const p of prices ?? []) {
-    if (p.region_id === null && !priceById.has(p.material_id)) {
-      priceById.set(p.material_id, p.price_minor);
-    }
-  }
+  // Цена — самое дешёвое предложение региона, иначе страны (SPEC 5.2 п.3).
+  const today = todayIso();
+  const pickedByMaterial = pickPricesByMaterial(
+    (prices ?? []) as PriceRow[],
+    params.regionId,
+    today
+  );
 
   const subtotals = new Map<string, number>();
+  const usedMaterials = new Set<string>();
   let priceMissingCount = 0;
   for (const item of items) {
-    const price = priceById.get(item.material_id);
-    if (price === undefined) {
+    const picked = pickedByMaterial.get(item.material_id);
+    if (picked === undefined) {
       priceMissingCount += 1; // позиция входит с price=0 (edge case 4)
       continue;
     }
+    const price = picked.priceMinor;
+    usedMaterials.add(item.material_id);
     // Доски не бывают дробными: ceil(qty) для unit='pcs' (SPEC 5.2 п.4).
     const qty =
       unitById.get(item.material_id) === 'pcs' ? Math.ceil(Number(item.qty)) : Number(item.qty);
@@ -104,10 +114,20 @@ export async function calcEstimate(
     }))
     .filter((s) => s.subtotalMinor > 0);
 
+  // «Цены проверены до …» и «N цен старше двух месяцев» — по ценам,
+  // которые действительно вошли в смету, а не по всей базе.
+  const used = [...usedMaterials].map((id) => pickedByMaterial.get(id)!.source);
+  const pricesCheckedOldest = used.reduce<string | null>(
+    (oldest, s) => (oldest === null || s.checkedAt < oldest ? s.checkedAt : oldest),
+    null
+  );
+
   return {
     currency: country.currency as string,
     totalMinor: byStage.reduce((sum, s) => sum + s.subtotalMinor, 0),
     byStage,
     priceMissingCount,
+    pricesCheckedOldest,
+    staleCount: used.filter((s) => s.stale).length,
   };
 }
