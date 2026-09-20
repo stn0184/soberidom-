@@ -167,7 +167,7 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
 - [x] `calc.ts` и `detailed.ts` на `pickPrice`; `EstimatePosition.source`,
       `.offers`; `EstimateResult.meta.pricesCheckedOldest`, `staleCount`;
       `/supplies` пробрасывает `source`/`offers`.
-- [ ] Zod: `priceSchema` с новыми полями, `priceUpdateSchema`,
+- [x] Zod: `priceSchema` с новыми полями, `priceUpdateSchema`,
       `pricesImportSchema`; `MaterialPriceRow` в `lib/admin/types.ts`;
       ключи `ru.liveEstimate.*`, `ru.project.*`, `ru.admin.materials.*`.
 - [ ] Хелпер даты `дд.мм.гггг` в `utils.ts`; `price-source.tsx` (подпись +

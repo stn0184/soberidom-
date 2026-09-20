@@ -175,15 +175,36 @@ export const materialSchema = z.object({
 export const materialUpdateSchema = materialSchema.partial();
 export type MaterialInput = z.infer<typeof materialSchema>;
 
-export const priceSchema = z.object({
+// Предложение цены (спека 005): у материала в регионе их несколько, каждое
+// со своим источником и датой проверки. Подпись обязательна — по ней
+// предложения и различаются (уникальный индекс material_prices_offer_idx).
+export const PRICE_SOURCE_KINDS = ['retailer', 'local_base', 'manual', 'ai_search'] as const;
+
+const priceFields = z.object({
   material_id: z.uuid(),
   country_code: z.enum(['RU', 'KZ', 'BY']),
   region_id: z.uuid().nullable(),
   price_minor: z.number().int().min(0),
   currency: z.enum(['RUB', 'KZT', 'BYN']),
+  source_kind: z.enum(PRICE_SOURCE_KINDS),
+  retailer_id: z.uuid().nullable(),
+  source_label: z.string().trim().min(1),
+  source_url: z.string().trim(),
+  checked_at: z.iso.date(),
 });
-export const priceUpdateSchema = priceSchema.partial();
-export type PriceInput = z.infer<typeof priceSchema>;
+// Вид «ритейлер» без выбранного ритейлера — источник, который не проверить.
+const retailerChosen = (v: { source_kind?: string; retailer_id?: string | null }) =>
+  v.source_kind !== 'retailer' || Boolean(v.retailer_id);
+export const priceSchema = priceFields.refine(retailerChosen, ru.admin.materials.errRetailer);
+export const priceUpdateSchema = priceFields
+  .partial()
+  .refine(retailerChosen, ru.admin.materials.errRetailer);
+export type PriceInput = z.infer<typeof priceFields>;
+
+// Импорт прайса: одна строка CSV — одно предложение (спека 005).
+export const pricesImportSchema = z.object({
+  csv: z.string().min(1),
+});
 
 export const regionSchema = z.object({
   country_code: z.enum(['RU', 'KZ', 'BY']),
