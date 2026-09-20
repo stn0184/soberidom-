@@ -389,7 +389,8 @@ alter table materials enable row level security;
 create policy "materials_read_all" on materials for select using (true);
 create policy "materials_admin_write" on materials for all using (is_admin()) with check (is_admin());
 
--- Дефолтные цены по странам (позже можно детализировать до региона: region_id nullable)
+-- Предложения цены: на материал в регионе их несколько, в смету идёт самое
+-- дешёвое (миграция 028). У каждого — откуда оно и когда его проверял человек.
 create table material_prices (
   id uuid primary key default gen_random_uuid(),
   material_id uuid not null references materials(id) on delete cascade,
@@ -397,10 +398,25 @@ create table material_prices (
   region_id uuid null references regions(id) on delete set null, -- null = вся страна
   price_minor integer not null check (price_minor >= 0),
   currency char(3) not null,
+  source_kind text not null default 'manual'
+    check (source_kind in ('retailer','local_base','manual','ai_search')),
+  retailer_id uuid null references retailers(id) on delete set null,
+  source_label text not null default '',   -- 'Лемана ПРО', 'База «Лесторг», Тверь'
+  source_url text not null default '',
+  checked_at date not null default current_date, -- дата UTC
   updated_at timestamptz not null default now(),
-  unique (material_id, country_code, region_id)
+  -- цена без подписи — снова «выдумано»: подпись обязательна и в БД, и в Zod
+  constraint material_prices_source_label_check check (length(trim(source_label)) > 0)
+);
+-- Одна подпись = одно предложение на (материал, страна, регион); unique на
+-- (material_id, country_code, region_id) снят миграцией 028.
+create unique index material_prices_offer_idx on material_prices (
+  material_id, country_code,
+  coalesce(region_id, '00000000-0000-0000-0000-000000000000'::uuid),
+  lower(trim(source_label))
 );
 create index idx_prices_material on material_prices(material_id);
+create index idx_prices_checked_at on material_prices(checked_at); -- счётчик устаревших в админке
 create trigger set_updated_at before update on material_prices
   for each row execute procedure extensions.moddatetime(updated_at);
 alter table material_prices enable row level security;

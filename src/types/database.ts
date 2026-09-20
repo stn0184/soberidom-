@@ -247,30 +247,45 @@ export type Database = {
       }
       material_prices: {
         Row: {
+          checked_at: string
           country_code: string
           currency: string
           id: string
           material_id: string
           price_minor: number
           region_id: string | null
+          retailer_id: string | null
+          source_kind: string
+          source_label: string
+          source_url: string
           updated_at: string
         }
         Insert: {
+          checked_at?: string
           country_code: string
           currency: string
           id?: string
           material_id: string
           price_minor: number
           region_id?: string | null
+          retailer_id?: string | null
+          source_kind?: string
+          source_label?: string
+          source_url?: string
           updated_at?: string
         }
         Update: {
+          checked_at?: string
           country_code?: string
           currency?: string
           id?: string
           material_id?: string
           price_minor?: number
           region_id?: string | null
+          retailer_id?: string | null
+          source_kind?: string
+          source_label?: string
+          source_url?: string
           updated_at?: string
         }
         Relationships: [
@@ -293,6 +308,13 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_prices_retailer_id_fkey"
+            columns: ["retailer_id"]
+            isOneToOne: false
+            referencedRelation: "retailers"
             referencedColumns: ["id"]
           },
         ]
