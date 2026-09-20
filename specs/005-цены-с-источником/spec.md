@@ -158,8 +158,8 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
 - [x] Миграция `028_price_sources.sql`: колонки источника, снятие
       unique, индекс, бэкфилл демо-строк; `SPEC.md` §2.3 тем же коммитом;
       `db push`; типы `material_prices` в `database.ts`.
-- [ ] `PRICE_STALE_DAYS = 60` в `src/lib/constants.ts`.
-- [ ] `src/lib/estimate/prices.ts` — `pickPrice` (регион → страна, самое
+- [x] `PRICE_STALE_DAYS = 60` в `src/lib/constants.ts`.
+- [x] `src/lib/estimate/prices.ts` — `pickPrice` (регион → страна, самое
       дешёвое, при равенстве — свежее, `stale` по `PRICE_STALE_DAYS`) +
       `prices.test.ts` (красный до реализации): регион дешевле страны /
       только страна / пусто / порог ровно 60 дней / равные цены —

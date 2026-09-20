@@ -15,6 +15,10 @@ export const DELIVERY_AVG_COST: Record<CountryCode, number> = {
   BY: 15_000,
 };
 
+// Цена, проверенная давнее этого, показывается жёлтой подписью «— давно»
+// и считается устаревшей в админке (спека 005). Одно число на весь проект.
+export const PRICE_STALE_DAYS = 60;
+
 export const CURRENCY_COUNTRY: Record<string, CountryCode> = {
   RUB: 'RU',
   KZT: 'KZ',
