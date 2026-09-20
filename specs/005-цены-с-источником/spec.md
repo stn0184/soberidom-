@@ -179,7 +179,7 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
       бейдж «устарела»); `GET /api/admin/prices?stale=1`; `prices-import.tsx`
       + `POST /api/admin/import/prices`; счётчик и блок импорта на
       `/admin/materials`.
-- [ ] Документы по разделу ниже.
+- [x] Документы по разделу ниже.
 
 ## Приёмка
 

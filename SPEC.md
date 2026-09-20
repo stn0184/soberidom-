@@ -923,7 +923,8 @@ Response 200:
 ```
 404: `{"error":{"code":"NOT_FOUND","message":"Проект не найден"}}`.
 
-### 3.4 GET /api/projects/[id]/estimate — предварительная смета (публичный)
+### 3.4 GET /api/projects/[slug]/estimate — предварительная смета (публичный)
+Сегмент называется `[slug]`, значение — UUID проекта: Next.js не допускает `[slug]` и `[id]` на одном уровне (ADR «Роут сметы витрины»).
 Query: `?lumber=dry&roofing=metal_tile&finish_ext=imitation&finish_int=vagonka&foundation=piles&regionId=<uuid>`
 Zod: все ключи enum по config_options проекта; неизвестная опция → 400 VALIDATION_ERROR.
 Response 200:
@@ -942,7 +943,8 @@ Response 200:
   ]
 } }
 ```
-Логика: выбрать bom_items проекта, где applies_when ⊆ config (пустой {} проходит всегда); цены: material_prices точного региона → страны; qty×price; группировка по stage.
+Плюс `meta`: `{ "priceMissingCount": 3, "pricesCheckedOldest": "2026-07-18", "staleCount": 2 }` — сколько позиций без цены, до какой даты цены проверены и сколько из вошедших старше порога (`PRICE_STALE_DAYS`).
+Логика: выбрать bom_items проекта, где applies_when ⊆ config (пустой {} проходит всегда); цена — по правилу 5.2 п.3 (самое дешёвое предложение точного региона, иначе «всей страны»); qty×price; группировка по stage.
 
 ### 3.5 POST /api/foundation/recommend (публичный)
 Zod:
@@ -1081,6 +1083,8 @@ Body: `{ "purchaseId":"9c1e...","message":"Доску повело винтом,
 - `POST /api/admin/purchases/[id]/activate` → status='active', отправка письма (Supabase SMTP), 200 `{ "data":{"status":"active"} }`.
 - `POST /api/admin/purchases/[id]/reject` body `{ "reason":"Платёж не найден" }`.
 - `POST /api/admin/import/regions` — CSV (name,country_code,mt,snow_region,wind_region), upsert.
+- `POST /api/admin/import/prices` — импорт прайса: CSV с разделителем `;`, заголовок `sku_internal;country;region;price;source_kind;source_label;source_url;checked_at` (регион пусто = вся страна; цена как в Excel — «820,50», «1 234,50»; дата пусто = сегодня; валюта по стране). Upsert по ключу предложения (материал, страна, регион, подпись без регистра), ответ `{ "data": { "inserted": 2, "updated": 1, "badLines": [5] } }`.
+- `GET /api/admin/prices?stale=1` → `{ "data": { "count": 12 } }` — сколько цен старше порога устаревания (`PRICE_STALE_DAYS`, 60 дней); `GET /api/admin/retailers` — справочник для выбора источника.
 Все админ-роуты: проверка is_admin на сервере, иначе 403.
 
 ### 3.17 Заготовка платёжного провайдера (этап 2)
@@ -1177,7 +1181,7 @@ Layout: сайдбар разделов. Каждый раздел: Table + по
 ### 5.2 Расчёт сметы (единая функция calcEstimate)
 1. Вход: projectId, config (map group→option), regionId, purchaseId? (для user_prices).
 2. bom = bom_items where project_id and applies_when ⊆ config (сравнение: каждый ключ applies_when существует в config с тем же значением).
-3. Цена позиции: user_prices(purchase,material) → material_prices(material, region) → material_prices(material, country, region null). Если цены нет нигде — позиция включается с price=0 и флагом `priceMissing:true` (админ видит отчёт «материалы без цен»).
+3. Цена позиции: user_prices(purchase,material) → **самое дешёвое предложение** material_prices точного региона → самое дешёвое предложение «всей страны» (region_id null). При равной цене побеждает более свежая `checked_at`, при равной дате — меньший `id` (порядок детерминирован). Предложения одного материала показываются покупателю списком, в смету идёт выбранное. Если цены нет нигде — позиция включается с price=0 и флагом `priceMissing:true` (админ видит отчёт «материалы без цен»).
 4. amount = ceil(qty) для unit='pcs' (доски не бывают дробными), иначе qty; ×price.
 5. Валюта — по стране региона; кросс-валютных смет нет (материал без цены в валюте страны = priceMissing).
 

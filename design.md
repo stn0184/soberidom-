@@ -32,6 +32,14 @@
   ценой за штуку, серым, без копеек: «≈ 26 444 ₽/м³». Позиция без цены —
   прочерк и бейдж «цена уточняется», не «0 ₽»; в итог не входит, итог
   подписан «без N позиций без цены» (прототип 003).
+- **Откуда цена:** под ценой — подпись `text-xs text-muted-foreground`
+  «источник · дд.мм.гггг» (↗ — ссылка на источник, если есть); у своей
+  цены покупателя — «ваша цена». Клик по подписи открывает `Popover` со
+  всеми предложениями: источник, цена, дата, ссылка, метка «в смете» у
+  вошедшего. Цена старше `PRICE_STALE_DAYS` (60 дней) — подпись
+  `text-amber-600` «проверено дд.мм.гггг — давно», в админке у строки
+  бейдж «устарела». Даты пользователю — `дд.мм.гггг` через `formatDateRu`
+  в `src/lib/utils.ts`, один формат на всё приложение (спека 005).
 - **Выбор из вариантов** — радио-карточки в ряд (`sm:grid-cols-2
   lg:grid-cols-3`): кружок-радио, название, бейдж, цена, короткая
   пометка серым, описание; действующая подсвечена `ring-2 ring-primary`
@@ -83,6 +91,9 @@
 | Раскрой, доставка, инструменты | `src/components/build/cutting-view.tsx`, `delivery-view.tsx`, `tools-view.tsx` | кабинет |
 | Потребность и варианты инструмента | `src/components/build/tool-need-card.tsx`, `tool-variant-card.tsx` | `/my/[id]/tools` |
 | Фин-отчёт | `src/components/finance/` | `/my/[id]/finance` |
+| Подпись источника цены + Popover предложений | `src/components/estimate/price-source.tsx` | строка сметы, закупки этапа |
+| Цены материала в админке: строка и форма предложения | `src/components/admin/material-prices.tsx`, `price-offer-row.tsx`, `price-offer-form.tsx` | «Материалы» → карточка материала |
+| Импорт прайса и счётчик устаревших цен | `src/components/admin/prices-import.tsx` | `/admin/materials` |
 | Формы админки | `src/components/admin/` (`stage-form.tsx`, формы шагов, материалов) | `/admin` |
 | Инструменты проекта в админке | `src/components/admin/tools-panel.tsx`, `tool-form.tsx`, `tool-variants-field.tsx` | «Этапы и шаги» → вкладка «Инструменты» |
 
