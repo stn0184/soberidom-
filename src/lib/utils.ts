@@ -21,3 +21,10 @@ export function formatMoneyMinor(minor: number, currency: string): string {
   const symbol = CURRENCY_SYMBOL[code] ?? code
   return `${(minor / 100).toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ${symbol}`
 }
+
+// Даты пользователю — дд.мм.гггг (спека 005): ISO из базы человек не читает.
+// Вход — «ГГГГ-ММ-ДД» (date из Postgres) или ISO-строка со временем.
+export function formatDateRu(isoDate: string): string {
+  const [year, month, day] = isoDate.slice(0, 10).split("-")
+  return day && month && year ? `${day}.${month}.${year}` : isoDate
+}

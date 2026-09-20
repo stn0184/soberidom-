@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { PriceSource } from '@/components/estimate/price-source';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import type { EstimatePosition } from '@/lib/estimate/detailed';
 import { formatMoneyMinor } from '@/lib/utils';
@@ -118,6 +119,12 @@ export function SuppliesMaterials({
                     {t.perM3(formatMoneyMinor(p.pricePerM3Minor, currency))}
                   </div>
                 )}
+                <PriceSource
+                  source={p.source}
+                  offers={p.offers}
+                  currency={currency}
+                  isUserPrice={p.isUserPrice}
+                />
               </TableCell>
               <TableCell className="font-medium">
                 {p.priceMissing ? t.noPrice : formatMoneyMinor(p.amountMinor, currency)}

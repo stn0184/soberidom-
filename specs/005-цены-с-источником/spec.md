@@ -170,7 +170,7 @@ badLines }`, как у регионов. Zod: `priceSchema` расширяетс
 - [x] Zod: `priceSchema` с новыми полями, `priceUpdateSchema`,
       `pricesImportSchema`; `MaterialPriceRow` в `lib/admin/types.ts`;
       ключи `ru.liveEstimate.*`, `ru.project.*`, `ru.admin.materials.*`.
-- [ ] Хелпер даты `дд.мм.гггг` в `utils.ts`; `price-source.tsx` (подпись +
+- [x] Хелпер даты `дд.мм.гггг` в `utils.ts`; `price-source.tsx` (подпись +
       Popover с предложениями, ≤200 строк); `estimate-row.tsx` и
       `stage-supplies.tsx` на нём; `estimate-panel.tsx` — строка «цены
       проверены до…».

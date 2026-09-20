@@ -13,12 +13,12 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiFetch } from '@/lib/admin/fetcher';
 import type { EstimateConfig, EstimateStageRow } from '@/lib/estimate/calc';
-import { formatMoneyMinor } from '@/lib/utils';
+import { formatDateRu, formatMoneyMinor } from '@/lib/utils';
 import { ru } from '@/lib/i18n/ru';
 
 type EstimateResponse = {
   data: { currency: string; totalMinor: number; byStage: EstimateStageRow[] };
-  meta: { priceMissingCount: number };
+  meta: { priceMissingCount: number; pricesCheckedOldest: string | null; staleCount: number };
 };
 
 type State =
@@ -96,6 +96,15 @@ export function EstimatePanel({
           <Badge variant="secondary" className="mt-1">
             {ru.project.estimateMissing(meta.priceMissingCount)}
           </Badge>
+        )}
+        {/* Честность сметы (спека 005): до какой даты цены проверены. */}
+        {meta.pricesCheckedOldest && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            {ru.project.pricesCheckedUntil(formatDateRu(meta.pricesCheckedOldest))}
+          </p>
+        )}
+        {meta.staleCount > 0 && (
+          <p className="text-xs text-amber-600">{ru.project.pricesStale(meta.staleCount)}</p>
         )}
       </div>
       {data.byStage.length > 0 && (

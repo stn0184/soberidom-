@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { PriceSource } from '@/components/estimate/price-source';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import type { EstimatePosition } from '@/lib/estimate/detailed';
 import { formatMoneyMinor } from '@/lib/utils';
@@ -143,6 +144,13 @@ export function EstimateRow({
             {t.resetPrice}
           </Button>
         )}
+        {/* Откуда цена и когда проверена (спека 005). */}
+        <PriceSource
+          source={position.source}
+          offers={position.offers}
+          currency={currency}
+          isUserPrice={position.isUserPrice}
+        />
       </TableCell>
       <TableCell className="font-medium">
         {formatMoneyMinor(position.amountMinor, currency)}
