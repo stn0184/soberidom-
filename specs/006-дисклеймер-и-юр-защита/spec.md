@@ -169,7 +169,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
       `ru.legal.*` (заголовки страниц, «версия от», подписи ссылок);
       `LEGAL_ENTITY`/`LEGAL_EMAIL` в `constants.ts`, переменные в
       `.env.example`.
-- [ ] `legal-page.tsx` + три страницы `/legal/*` с `generateMetadata`;
+- [x] `legal-page.tsx` + три страницы `/legal/*` с `generateMetadata`;
       `sitemap.ts` — три адреса.
 - [ ] Футер: ссылки на три страницы; регистрация — ссылка на
       `/legal/privacy` в тексте согласия.

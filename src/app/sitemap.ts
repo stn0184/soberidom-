@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { LEGAL_SLUGS, LEGAL_VERSION } from '@/lib/legal/texts';
 import { createClient } from '@/lib/supabase/server';
 
-// SEO (SPEC 5.9): /, /projects и все published-витрины.
+// SEO (SPEC 5.9): /, /projects, все published-витрины и три юр-страницы (спека 006).
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const supabase = (await createClient()) as unknown as SupabaseClient;
@@ -19,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(p.updated_at as string),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+    })),
+    ...LEGAL_SLUGS.map((slug) => ({
+      url: `${base}/legal/${slug}`,
+      lastModified: new Date(LEGAL_VERSION),
+      changeFrequency: 'yearly' as const,
+      priority: 0.3,
     })),
   ];
 }
