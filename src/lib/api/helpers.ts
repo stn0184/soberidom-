@@ -82,6 +82,9 @@ export type PurchaseCtx = {
   code: string;
   amount_minor: number;
   currency: string;
+  // Ключи групп конфигуратора → option_key. Рядом лежит служебный consent —
+  // объект с версией и датой согласия (спека 006); фильтры applies_when смотрят
+  // только на ключи опций и его не читают, поэтому тип оставлен по опциям.
   config: Record<string, string>;
   region_id: string | null;
 };

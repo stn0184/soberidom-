@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { apiError, dbError, parseJson, validationError } from '@/lib/api/helpers';
 import { sendEmail } from '@/lib/email/send';
+import { buildConsent } from '@/lib/legal/helpers';
+import { LEGAL_VERSION } from '@/lib/legal/texts';
 import { generatePurchaseCode } from '@/lib/payments/code';
 import { manualProvider } from '@/lib/payments/manual';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
@@ -45,8 +47,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Юридическая фиксация согласия с дисклеймером — в config покупки (edge 20).
-  const config = { ...input.config, disclaimer: 'accepted' };
+  // Юридическая фиксация согласия — в config покупки (edge 20, спека 006):
+  // с чем согласился (дисклеймер, оферта), версия текста и момент согласия.
+  const config = { ...input.config, consent: buildConsent(LEGAL_VERSION) };
   const baseRow = {
     user_id: user.id,
     project_id: project.id,

@@ -13,16 +13,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import type { ConfigOptions } from '@/components/estimate/project-configurator';
+import { ConsentCheckbox } from '@/components/legal/consent-checkbox';
 import { RegionCombobox, type RegionOption } from '@/components/quiz/region-combobox';
 import { ApiError, apiFetch } from '@/lib/admin/fetcher';
 import type { PayInstructions } from '@/lib/payments/provider';
 import { formatMoneyMinor } from '@/lib/utils';
 import { ru } from '@/lib/i18n/ru';
+import { ConfigSummary } from './config-summary';
 import { PayCard } from './pay-card';
 
 const t = ru.buy;
@@ -46,8 +46,8 @@ type PurchaseResponse = {
   };
 };
 
-// Оформление покупки (US-006): сводка конфигурации, промокод,
-// обязательный чекбокс дисклеймера, после POST — инструкция оплаты.
+// Оформление покупки (US-006): сводка конфигурации, промокод, обязательное
+// согласие с дисклеймером и офертой (спека 006), после POST — инструкция оплаты.
 export function BuyForm({
   project,
   configOptions,
@@ -167,25 +167,7 @@ export function BuyForm({
           </Alert>
         )}
 
-        <div className="space-y-2">
-          <Label>{t.configTitle}</Label>
-          {config === null ? (
-            <Skeleton className="h-20 w-full" />
-          ) : (
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              {Object.entries(config)
-                .filter(([group]) => configOptions[group])
-                .map(([group, key]) => (
-                  <li key={group} className="flex justify-between gap-3">
-                    <span>{ru.project.groups[group as keyof typeof ru.project.groups] ?? group}</span>
-                    <span className="text-foreground">
-                      {configOptions[group]?.find((o) => o.key === key)?.label ?? key}
-                    </span>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </div>
+        <ConfigSummary config={config} configOptions={configOptions} />
 
         <div className="space-y-1.5">
           <Label>{t.regionLabel}</Label>
@@ -197,10 +179,7 @@ export function BuyForm({
           <Input id="promo" value={promo} onChange={(e) => setPromo(e.target.value)} />
         </div>
 
-        <label className="flex items-start gap-2 text-sm">
-          <Checkbox checked={consent} onCheckedChange={(c) => setConsent(c === true)} />
-          {t.disclaimer}
-        </label>
+        <ConsentCheckbox checked={consent} onCheckedChange={setConsent} />
       </CardContent>
       <CardFooter>
         <Button

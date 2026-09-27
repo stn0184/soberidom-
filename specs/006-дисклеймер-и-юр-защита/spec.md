@@ -173,7 +173,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
       `sitemap.ts` — три адреса.
 - [x] Футер: ссылки на три страницы; регистрация — ссылка на
       `/legal/privacy` в тексте согласия.
-- [ ] `consent-checkbox.tsx`; `buy-form.tsx` на нём (вынос ≤200 строк);
+- [x] `consent-checkbox.tsx`; `buy-form.tsx` на нём (вынос ≤200 строк);
       `POST /api/purchases` пишет `config.consent {…, version, at}`.
 - [ ] `free-access-dialog.tsx`; `my-projects.tsx` открывает диалог (вынос
       ≤200 строк); `lib/zod/purchase.ts` — схема тела free-access с
