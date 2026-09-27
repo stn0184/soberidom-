@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { LegalLinks } from '@/components/legal/legal-links';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
 
@@ -56,6 +57,7 @@ export default async function PublicLayout({
       <footer className="border-t">
         <div className="mx-auto w-full max-w-6xl space-y-1 px-4 py-6 text-sm text-muted-foreground">
           <p>{ru.footer.disclaimer}</p>
+          <LegalLinks />
           <p>
             © {new Date().getFullYear()} {ru.common.appName}
           </p>

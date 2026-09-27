@@ -22,6 +22,7 @@ export const ru = {
   footer: {
     disclaimer:
       'Материалы носят информационный характер и не заменяют проектную документацию.',
+    links: { disclaimer: 'Дисклеймер', privacy: 'Политика ПД', offer: 'Оферта' },
   },
   legal: {
     titles: {
@@ -29,7 +30,6 @@ export const ru = {
       privacy: 'Политика обработки персональных данных',
       offer: 'Публичная оферта',
     },
-    links: { disclaimer: 'Дисклеймер', privacy: 'Политика ПД', offer: 'Оферта' },
     versionFrom: (date: string) => `Версия от ${date}`,
     entityTitle: 'Реквизиты',
     entityFallback: 'Реквизиты уточняются',
@@ -47,8 +47,8 @@ export const ru = {
       nameLabel: 'Имя',
       emailLabel: 'Email',
       passwordLabel: 'Пароль',
-      pdConsentLabel:
-        'Я соглашаюсь с политикой обработки персональных данных',
+      pdConsentPrefix: 'Я соглашаюсь с ',
+      pdConsentLink: 'политикой обработки персональных данных',
       submit: 'Зарегистрироваться',
       haveAccount: 'Уже есть аккаунт?',
       emailTaken: 'Этот email уже зарегистрирован',

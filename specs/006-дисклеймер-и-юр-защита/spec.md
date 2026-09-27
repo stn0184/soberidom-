@@ -171,7 +171,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
       `.env.example`.
 - [x] `legal-page.tsx` + три страницы `/legal/*` с `generateMetadata`;
       `sitemap.ts` — три адреса.
-- [ ] Футер: ссылки на три страницы; регистрация — ссылка на
+- [x] Футер: ссылки на три страницы; регистрация — ссылка на
       `/legal/privacy` в тексте согласия.
 - [ ] `consent-checkbox.tsx`; `buy-form.tsx` на нём (вынос ≤200 строк);
       `POST /api/purchases` пишет `config.consent {…, version, at}`.

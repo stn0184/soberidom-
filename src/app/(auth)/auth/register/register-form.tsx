@@ -143,7 +143,17 @@ export function RegisterForm() {
               }
             />
             <Label htmlFor="pdConsent" className="text-sm font-normal leading-snug">
-              {t.pdConsentLabel}
+              <span>
+                {t.pdConsentPrefix}
+                <Link
+                  href="/legal/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  {t.pdConsentLink}
+                </Link>
+              </span>
             </Label>
           </div>
         </CardContent>
