@@ -53,6 +53,10 @@ function toDefaults(project: ProjectRow | null): ProjectInput {
     status: 'draft',
     sp_compliant: true,
     is_free: false,
+    plan_author: '',
+    plan_source_url: '',
+    plan_license: '',
+    plan_license_url: '',
   };
 }
 

@@ -15,7 +15,7 @@ import { ru } from '@/lib/i18n/ru';
 
 const t = ru.admin.projects;
 
-// Базовые скалярные поля проекта (SPEC 2.4).
+// Базовые скалярные поля проекта (SPEC 2.4) + блок «Источник планов» (спека 006).
 export function ProjectFormFields({ form }: { form: UseFormReturn<ProjectInput> }) {
   const { errors } = form.formState;
   const buildingType = useWatch({ control: form.control, name: 'building_type' });
@@ -141,6 +141,20 @@ export function ProjectFormFields({ form }: { form: UseFormReturn<ProjectInput> 
             ))}
           </SelectContent>
         </Select>
+      </FormField>
+
+      <p className="col-span-2 pt-2 text-sm font-medium">{t.planSourceTitle}</p>
+      <FormField label={t.planAuthor} htmlFor="p-plan-author" error={errors.plan_author?.message}>
+        <Input id="p-plan-author" {...form.register('plan_author')} />
+      </FormField>
+      <FormField label={t.planSourceUrl} htmlFor="p-plan-src" error={errors.plan_source_url?.message}>
+        <Input id="p-plan-src" type="url" {...form.register('plan_source_url')} />
+      </FormField>
+      <FormField label={t.planLicense} htmlFor="p-plan-lic" error={errors.plan_license?.message}>
+        <Input id="p-plan-lic" {...form.register('plan_license')} />
+      </FormField>
+      <FormField label={t.planLicenseUrl} htmlFor="p-plan-lic-url" error={errors.plan_license_url?.message}>
+        <Input id="p-plan-lic-url" type="url" {...form.register('plan_license_url')} />
       </FormField>
     </div>
   );

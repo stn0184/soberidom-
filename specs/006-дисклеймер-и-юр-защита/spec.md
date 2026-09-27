@@ -178,7 +178,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
 - [ ] `free-access-dialog.tsx`; `my-projects.tsx` открывает диалог (вынос
       ≤200 строк); `lib/zod/purchase.ts` — схема тела free-access с
       `disclaimerAccepted`; роут проверяет и пишет `consent`.
-- [ ] Миграция `029_project_attribution.sql` + `SPEC.md` §2.4 + типы;
+- [x] Миграция `029_project_attribution.sql` + `SPEC.md` §2.4 + типы;
       бэкфилл эталона; Zod `projectSchema`, `ProjectRow`, блок «Источник
       планов» в форме админки.
 - [ ] `project-attribution.tsx`; витрина и хаб кабинета показывают его.

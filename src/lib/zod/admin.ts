@@ -33,6 +33,11 @@ export const projectSchema = z.object({
   status: z.enum(['draft', 'published']),
   sp_compliant: z.boolean(),
   is_free: z.boolean(), // v1.5: бесплатный проект-эталон
+  // Источник планов (спека 006, миграция 029): автор и лицензия — атрибуция CC BY.
+  plan_author: z.string().trim(),
+  plan_source_url: z.string().trim(),
+  plan_license: z.string().trim(),
+  plan_license_url: z.string().trim(),
 });
 export const projectUpdateSchema = projectSchema.partial();
 export type ProjectInput = z.infer<typeof projectSchema>;

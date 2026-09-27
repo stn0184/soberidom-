@@ -466,6 +466,10 @@ create table house_projects (
   status text not null default 'draft' check (status in ('draft','published')),
   sp_compliant boolean not null default true,   -- бейдж СП 31-105-2002
   is_free boolean not null default false,       -- v1.5: полностью бесплатный проект-эталон; доступ ко всем разделам как при активной покупке
+  plan_author text not null default '',         -- спека 006 (029): автор планов, напр. 'Michael Janzen'; пусто = атрибуция не показывается
+  plan_source_url text not null default '',     -- ссылка на источник планов, напр. 'https://tinyhousedesign.com'
+  plan_license text not null default '',        -- лицензия планов, напр. 'CC BY-NC 3.0'
+  plan_license_url text not null default '',    -- ссылка на текст лицензии
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

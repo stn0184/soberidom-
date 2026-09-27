@@ -202,6 +202,11 @@ export const ru = {
       status: 'Статус',
       spCompliant: 'Соответствует СП 31-105-2002',
       isFree: 'Бесплатный проект-эталон (доступ без покупки)',
+      planSourceTitle: 'Источник планов',
+      planAuthor: 'Автор планов (например «Michael Janzen»)',
+      planSourceUrl: 'Ссылка на источник планов',
+      planLicense: 'Лицензия планов (например «CC BY-NC 3.0»)',
+      planLicenseUrl: 'Ссылка на текст лицензии',
       buildingTypes: { house: 'Дом', banya: 'Баня', hozblok: 'Хозблок', garage: 'Гараж' },
       styles: {
         classic: 'Классический',

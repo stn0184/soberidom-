@@ -182,6 +182,10 @@ export type Database = {
           layout_notes: Json
           max_snow_region: number
           model_glb_url: string
+          plan_author: string
+          plan_license: string
+          plan_license_url: string
+          plan_source_url: string
           price_minor: number
           rooms: number
           slug: string
@@ -208,6 +212,10 @@ export type Database = {
           layout_notes?: Json
           max_snow_region?: number
           model_glb_url?: string
+          plan_author?: string
+          plan_license?: string
+          plan_license_url?: string
+          plan_source_url?: string
           price_minor: number
           rooms: number
           slug: string
@@ -234,6 +242,10 @@ export type Database = {
           layout_notes?: Json
           max_snow_region?: number
           model_glb_url?: string
+          plan_author?: string
+          plan_license?: string
+          plan_license_url?: string
+          plan_source_url?: string
           price_minor?: number
           rooms?: number
           slug?: string
