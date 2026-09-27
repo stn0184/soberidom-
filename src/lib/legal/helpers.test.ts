@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildConsent, displayHost, parseLegalEntity } from './helpers.ts';
+import { buildConsent, displayHost, parseLegalEntity, planAttribution } from './helpers.ts';
 
 // Реквизиты из окружения, хост источника планов и объект согласия (спека 006).
 // Запуск: node --test src/lib/legal/helpers.test.ts
@@ -21,6 +21,35 @@ test('displayHost: хост без www, мусор и пустота — пус�
   assert.equal(displayHost('https://creativecommons.org/licenses/by-nc/3.0/us/'), 'creativecommons.org');
   assert.equal(displayHost('not a url'), '');
   assert.equal(displayHost(''), '');
+});
+
+test('planAttribution: snake_case строки БД → camelCase, null и отсутствие колонок → пустые строки', () => {
+  assert.deepEqual(
+    planAttribution({
+      plan_author: 'Michael Janzen',
+      plan_source_url: 'https://tinyhousedesign.com',
+      plan_license: 'CC BY-NC 3.0',
+      plan_license_url: 'https://creativecommons.org/licenses/by-nc/3.0/us/',
+    }),
+    {
+      planAuthor: 'Michael Janzen',
+      planSourceUrl: 'https://tinyhousedesign.com',
+      planLicense: 'CC BY-NC 3.0',
+      planLicenseUrl: 'https://creativecommons.org/licenses/by-nc/3.0/us/',
+    },
+  );
+  assert.deepEqual(planAttribution({ plan_author: null }), {
+    planAuthor: '',
+    planSourceUrl: '',
+    planLicense: '',
+    planLicenseUrl: '',
+  });
+  assert.deepEqual(planAttribution({}), {
+    planAuthor: '',
+    planSourceUrl: '',
+    planLicense: '',
+    planLicenseUrl: '',
+  });
 });
 
 test('buildConsent: оба флага, версия и ISO-дата момента согласия', () => {

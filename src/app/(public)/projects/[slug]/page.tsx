@@ -22,9 +22,11 @@ import {
   ProjectConfigurator,
   type ConfigOptions,
 } from '@/components/estimate/project-configurator';
+import { ProjectAttribution } from '@/components/legal/project-attribution';
 import { Project3d } from '@/components/three/project-3d';
 import { createClient } from '@/lib/supabase/server';
 import type { LayoutNote } from '@/lib/admin/types';
+import { planAttribution } from '@/lib/legal/helpers';
 import { ru } from '@/lib/i18n/ru';
 
 type Ctx = { params: Promise<{ slug: string }> };
@@ -104,6 +106,7 @@ export default async function ProjectPage({ params }: Ctx) {
         {project.description && (
           <p className="max-w-3xl text-muted-foreground">{project.description}</p>
         )}
+        <ProjectAttribution attribution={planAttribution(project)} className="max-w-3xl" />
       </header>
 
       <section className="grid gap-6 lg:grid-cols-2">

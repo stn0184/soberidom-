@@ -181,7 +181,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
 - [x] Миграция `029_project_attribution.sql` + `SPEC.md` §2.4 + типы;
       бэкфилл эталона; Zod `projectSchema`, `ProjectRow`, блок «Источник
       планов» в форме админки.
-- [ ] `project-attribution.tsx`; витрина и хаб кабинета показывают его.
+- [x] `project-attribution.tsx`; витрина и хаб кабинета показывают его.
 - [ ] Документы по разделу ниже.
 
 ## Приёмка

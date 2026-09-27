@@ -42,6 +42,12 @@ export const ru = {
       middle: ', и принимаю ',
       offerLink: 'условия оферты',
     },
+    attribution: {
+      plans: 'Планы:',
+      license: 'лицензия',
+      notChecked: 'не проверены лицензированным инженером',
+      more: 'подробнее',
+    },
   },
   home: {
     heroTitle: 'Собери свой дом. Как конструктор.',

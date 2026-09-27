@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { apiError } from '@/lib/api/helpers';
 import { getPurchaseProgress } from '@/lib/build/progress';
+import { planAttribution } from '@/lib/legal/helpers';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
 
 // SPEC 3.7: покупки пользователя с прогрессом.
-// meta.freeProjects — is_free-проекты без покупки (v1.5: доступ как у активной).
+// meta.freeProjects — is_free-проекты без покупки (v1.5: доступ как у активной)
+// с автором и лицензией планов для диалога бесплатного доступа (спека 006).
 export async function GET() {
   const client = await createClient();
   const {
@@ -49,7 +51,7 @@ export async function GET() {
   const ownedProjectIds = new Set((purchases ?? []).map((p) => p.project_id as string));
   const { data: freeRows } = await db
     .from('house_projects')
-    .select('id, slug, title, cover_image_url')
+    .select('id, slug, title, cover_image_url, plan_author, plan_source_url, plan_license, plan_license_url')
     .eq('status', 'published')
     .eq('is_free', true);
   const freeProjects = (freeRows ?? [])
@@ -59,6 +61,7 @@ export async function GET() {
       slug: p.slug,
       title: p.title,
       coverImageUrl: p.cover_image_url,
+      ...planAttribution(p),
     }));
 
   return NextResponse.json({ data, meta: { freeProjects } });

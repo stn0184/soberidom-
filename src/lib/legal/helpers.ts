@@ -33,3 +33,29 @@ export type LegalConsent = {
 export function buildConsent(version: string, at: Date = new Date()): LegalConsent {
   return { disclaimer: true, offer: true, version, at: at.toISOString() };
 }
+
+// Атрибуция планов проекта (CC BY): строка house_projects → поля для компонента.
+// Колонок может не быть в выборке (или в базе до миграции 029) — тогда пустые
+// строки, и ProjectAttribution просто не рендерится.
+export type PlanAttribution = {
+  planAuthor: string;
+  planSourceUrl: string;
+  planLicense: string;
+  planLicenseUrl: string;
+};
+
+type PlanRow = {
+  plan_author?: string | null;
+  plan_source_url?: string | null;
+  plan_license?: string | null;
+  plan_license_url?: string | null;
+};
+
+export function planAttribution(row: PlanRow): PlanAttribution {
+  return {
+    planAuthor: row.plan_author ?? '',
+    planSourceUrl: row.plan_source_url ?? '',
+    planLicense: row.plan_license ?? '',
+    planLicenseUrl: row.plan_license_url ?? '',
+  };
+}

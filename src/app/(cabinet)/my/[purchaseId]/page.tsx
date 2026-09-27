@@ -13,7 +13,9 @@ import {
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { JourneyMap, type JourneyStage } from '@/components/build/journey-map';
+import { ProjectAttribution } from '@/components/legal/project-attribution';
 import { getPurchaseProgress } from '@/lib/build/progress';
+import { planAttribution } from '@/lib/legal/helpers';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
 
@@ -40,7 +42,7 @@ export default async function PurchaseHubPage({ params }: Ctx) {
 
   const { data: purchase } = await db
     .from('purchases')
-    .select('*, house_projects(slug, title)')
+    .select('*, house_projects(slug, title, plan_author, plan_source_url, plan_license, plan_license_url)')
     .eq('id', purchaseId)
     .maybeSingle();
   if (!purchase) notFound(); // RLS скрывает чужие — 404, не раскрываем (edge 9)
@@ -75,7 +77,10 @@ export default async function PurchaseHubPage({ params }: Ctx) {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">{purchase.house_projects?.title}</h1>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">{purchase.house_projects?.title}</h1>
+        <ProjectAttribution attribution={planAttribution(purchase.house_projects ?? {})} />
+      </div>
 
       <section className="max-w-xl space-y-2">
         <h2 className="font-medium">{t.progressTitle}</h2>
