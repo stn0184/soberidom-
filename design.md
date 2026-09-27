@@ -96,6 +96,11 @@
 | Импорт прайса и счётчик устаревших цен | `src/components/admin/prices-import.tsx` | `/admin/materials` |
 | Формы админки | `src/components/admin/` (`stage-form.tsx`, формы шагов, материалов) | `/admin` |
 | Инструменты проекта в админке | `src/components/admin/tools-panel.tsx`, `tool-form.tsx`, `tool-variants-field.tsx` | «Этапы и шаги» → вкладка «Инструменты» |
+| Юр-страница: заголовок, «версия от», разделы, реквизиты, ссылки | `src/components/legal/legal-page.tsx` | `/legal/disclaimer`, `/legal/privacy`, `/legal/offer` |
+| Ссылки на юр-страницы в футере | `src/components/legal/legal-links.tsx` | футер публичного слоя и кабинета |
+| Чекбокс согласия (дисклеймер + оферта) | `src/components/legal/consent-checkbox.tsx` | покупка, диалог бесплатного доступа |
+| Строка автора и лицензии планов | `src/components/legal/project-attribution.tsx` | витрина под описанием, хаб кабинета под заголовком, диалог бесплатного доступа |
+| Диалог перед открытием бесплатного проекта | `src/components/cabinet/free-access-dialog.tsx` | `/my`, раздел «Попробуйте бесплатно» |
 
 ## 4. Одобренные прототипы
 
