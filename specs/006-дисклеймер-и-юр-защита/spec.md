@@ -1,6 +1,6 @@
 # 006. Дисклеймер и юр-защита
 
-**Статус:** запланировано
+**Статус:** в работе
 **Размер:** M
 **Зависит от:** ничего
 **Прототип:** не нужен
@@ -165,7 +165,7 @@ default ''` («CC BY-NC 3.0»), `plan_license_url text not null default ''`;
 
 ## Задачи
 
-- [ ] `src/lib/legal/texts.ts` — три документа, `LEGAL_VERSION`; ключи
+- [x] `src/lib/legal/texts.ts` — три документа, `LEGAL_VERSION`; ключи
       `ru.legal.*` (заголовки страниц, «версия от», подписи ссылок);
       `LEGAL_ENTITY`/`LEGAL_EMAIL` в `constants.ts`, переменные в
       `.env.example`.

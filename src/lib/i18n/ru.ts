@@ -23,6 +23,19 @@ export const ru = {
     disclaimer:
       'Материалы носят информационный характер и не заменяют проектную документацию.',
   },
+  legal: {
+    titles: {
+      disclaimer: 'Дисклеймер',
+      privacy: 'Политика обработки персональных данных',
+      offer: 'Публичная оферта',
+    },
+    links: { disclaimer: 'Дисклеймер', privacy: 'Политика ПД', offer: 'Оферта' },
+    versionFrom: (date: string) => `Версия от ${date}`,
+    entityTitle: 'Реквизиты',
+    entityFallback: 'Реквизиты уточняются',
+    emailLabel: 'Почта для обращений:',
+    otherDocs: 'Другие документы:',
+  },
   home: {
     heroTitle: 'Собери свой дом. Как конструктор.',
     heroSubtitle:

@@ -24,3 +24,10 @@ export const CURRENCY_COUNTRY: Record<string, CountryCode> = {
   KZT: 'KZ',
   BYN: 'BY',
 };
+
+// Реквизиты продавца и почта для обращений — из окружения (спека 006), чтобы
+// юр-страницы не хранили ИНН в коде. Реквизиты — одна строка частями через « | »
+// («ИП Иванов И. И. | ИНН … | ОГРНИП … | адрес»), разбор — parseLegalEntity.
+// Пустая строка = переменной нет: страница покажет «Реквизиты уточняются».
+export const LEGAL_ENTITY = process.env.NEXT_PUBLIC_LEGAL_ENTITY?.trim() ?? '';
+export const LEGAL_EMAIL = process.env.NEXT_PUBLIC_LEGAL_EMAIL?.trim() || 'support@soberidom.ru';
