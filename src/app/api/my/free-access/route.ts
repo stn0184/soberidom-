@@ -1,16 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { z } from 'zod';
 import { apiError, dbError, parseJson, validationError } from '@/lib/api/helpers';
+import { buildConsent } from '@/lib/legal/helpers';
+import { LEGAL_VERSION } from '@/lib/legal/texts';
 import { generatePurchaseCode } from '@/lib/payments/code';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { freeAccessSchema } from '@/lib/zod/purchase';
 import { ru } from '@/lib/i18n/ru';
-
-const schema = z.object({ projectId: z.uuid() });
 
 // v1.5: доступ к is_free-проекту без оплаты. Создаёт «нулевую» активную покупку —
 // на ней живут прогресс, свои цены и траты (все user_* таблицы ссылаются на purchases).
+// Спека 006: тело обязано содержать disclaimerAccepted: true, согласие пишется в config.
 export async function POST(request: NextRequest) {
   const client = await createClient();
   const {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
   } = await client.auth.getUser();
   if (!user) return apiError('UNAUTHORIZED', ru.api.unauthorized);
 
-  const parsed = schema.safeParse(await parseJson(request));
+  const parsed = freeAccessSchema.safeParse(await parseJson(request));
   if (!parsed.success) return validationError(parsed.error);
   const db = client as unknown as SupabaseClient;
 
@@ -38,15 +39,17 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (existing) return NextResponse.json({ data: { purchaseId: existing.id } });
 
-  // Дефолтная конфигурация проекта фиксируется в покупке (как при обычной покупке).
+  // Дефолтная конфигурация проекта фиксируется в покупке (как при обычной покупке),
+  // рядом — согласие с версией текста и датой (edge 20, спека 006).
   const { data: options } = await db
     .from('config_options')
     .select('group_key, option_key, is_default')
     .eq('project_id', project.id);
-  const config: Record<string, string> = {};
+  const defaults: Record<string, string> = {};
   for (const o of options ?? []) {
-    if (o.is_default) config[o.group_key] = o.option_key;
+    if (o.is_default) defaults[o.group_key] = o.option_key;
   }
+  const config = { ...defaults, consent: buildConsent(LEGAL_VERSION) };
 
   // insert через service_role: RLS разрешает пользователю только status='pending'.
   const service = createServiceClient();

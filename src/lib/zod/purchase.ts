@@ -16,6 +16,14 @@ export const purchaseSchema = z.object({
 });
 export type PurchaseInput = z.infer<typeof purchaseSchema>;
 
+// Тело POST /api/my/free-access (спека 006): бесплатный эталон открывается только
+// с тем же согласием, что и покупка, — иначе VALIDATION_ERROR.
+export const freeAccessSchema = z.object({
+  projectId: z.uuid(),
+  disclaimerAccepted: z.literal(true),
+});
+export type FreeAccessInput = z.infer<typeof freeAccessSchema>;
+
 export const rejectSchema = z.object({
   reason: z.string().trim().min(1),
 });
