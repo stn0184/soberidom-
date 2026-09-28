@@ -2,6 +2,14 @@
 
 // Родительный падеж после «без N» и «из N»: 1, 21, 31… позиции; остальное — позиций.
 const positionsGen = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'позиции' : 'позиций');
+// Число и существительное: 1, 21… цена; 2–4, 22–24… цены; 0, 5–20, 25… цен.
+const pricesNom = (n: number) => {
+  const d = n % 10;
+  const h = n % 100;
+  if (d === 1 && h !== 11) return 'цена';
+  if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return 'цены';
+  return 'цен';
+};
 export const ru = {
   common: {
     appName: 'СобериДом',
@@ -696,7 +704,7 @@ export const ru = {
     estimateError: 'Не удалось посчитать',
     estimateMissing: (n: number) => `≈ без ${n} ${positionsGen(n)} (цены уточняются)`,
     pricesCheckedUntil: (date: string) => `Цены проверены до ${date}`,
-    pricesStale: (n: number) => `${n} цен старше двух месяцев, итог может отличаться`,
+    pricesStale: (n: number) => `${n} ${pricesNom(n)} старше двух месяцев, итог может отличаться`,
     regionLabel: 'Где будет стоять домик?',
     buy: (price: string) => `Купить полный разбор за ${price}`,
     freeAccess: 'Открыть бесплатный разбор',
