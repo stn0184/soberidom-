@@ -698,6 +698,7 @@ export const ru = {
       finish_ext: 'Отделка снаружи',
       finish_int: 'Отделка внутри',
       foundation: 'Фундамент',
+      subfloor: 'Настил пола',
     },
     estimateTotal: 'Материалы обойдутся примерно в',
     estimateByStage: 'Разбивка по этапам',

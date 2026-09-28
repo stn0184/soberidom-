@@ -137,7 +137,7 @@ export type ToolVariantInput = z.infer<typeof toolVariantFields>;
 // Опции конфигуратора + поля «человеческого» показа (UX_PRINCIPLES, миграция 010).
 export const configOptionSchema = z.object({
   project_id: z.uuid(),
-  group_key: z.enum(['lumber', 'roofing', 'finish_ext', 'finish_int', 'foundation']),
+  group_key: z.enum(['lumber', 'roofing', 'finish_ext', 'finish_int', 'foundation', 'subfloor']),
   option_key: z
     .string()
     .trim()

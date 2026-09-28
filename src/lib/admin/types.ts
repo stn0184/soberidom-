@@ -1,5 +1,6 @@
 import type { Database } from '@/types/database';
 import type {
+  ConfigOptionInput,
   PartInput,
   PriceInput,
   ProjectInput,
@@ -46,7 +47,7 @@ export type PartRow = Omit<Tables['parts']['Row'], 'color' | 'applies_when'> & {
 };
 
 export type ConfigOptionRow = Omit<Tables['config_options']['Row'], 'group_key'> & {
-  group_key: 'lumber' | 'roofing' | 'finish_ext' | 'finish_int' | 'foundation';
+  group_key: ConfigOptionInput['group_key'];
 };
 
 export type ToolRow = Omit<Tables['project_tools']['Row'], 'category'> & {
