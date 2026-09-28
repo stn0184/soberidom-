@@ -1,4 +1,7 @@
 // Все строки интерфейса — только здесь (SPEC: Глобальные правила, готовность к переводу).
+
+// Родительный падеж после «без N» и «из N»: 1, 21, 31… позиции; остальное — позиций.
+const positionsGen = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'позиции' : 'позиций');
 export const ru = {
   common: {
     appName: 'СобериДом',
@@ -691,7 +694,7 @@ export const ru = {
     estimateTotal: 'Материалы обойдутся примерно в',
     estimateByStage: 'Разбивка по этапам',
     estimateError: 'Не удалось посчитать',
-    estimateMissing: (n: number) => `≈ без ${n} позиций (цены уточняются)`,
+    estimateMissing: (n: number) => `≈ без ${n} ${positionsGen(n)} (цены уточняются)`,
     pricesCheckedUntil: (date: string) => `Цены проверены до ${date}`,
     pricesStale: (n: number) => `${n} цен старше двух месяцев, итог может отличаться`,
     regionLabel: 'Где будет стоять домик?',
@@ -840,12 +843,12 @@ export const ru = {
       suppliesIntro:
         'Соберите это одной поездкой — чтобы не возвращаться на базу посреди стройки.',
       progress: (done: number, total: number) =>
-        `Куплено ${done} из ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'позиции' : 'позиций'}`,
+        `Куплено ${done} из ${total} ${positionsGen(total)}`,
       perM3: (sum: string) => `≈ ${sum}/м³`,
       noPrice: '—',
       stageTotal: (sum: string) => `Итого по этапу: ${sum}`,
       totalApprox: (n: number) =>
-        `без ${n} ${n % 10 === 1 && n % 100 !== 11 ? 'позиции' : 'позиций'} без цены`,
+        `без ${n} ${positionsGen(n)} без цены`,
       toolsTitle: 'И это понадобится',
       toolsAll: 'Все инструменты →',
       toolChooseOther: 'Выбрать другой →',
@@ -886,7 +889,7 @@ export const ru = {
     intro: 'Цены можно править под свой магазин — кликните по цене. Отмечайте купленное галочками: так вы видите движение и ничего не забудете.',
     tabStages: 'По этапам',
     tabShopping: 'Список покупок',
-    progress: (done: number, total: number) => `Куплено ${done} из ${total} позиций`,
+    progress: (done: number, total: number) => `Куплено ${done} из ${total} ${positionsGen(total)}`,
     thMaterial: 'Материал',
     thQty: 'Кол-во',
     thUnit: 'Ед.',
@@ -907,7 +910,7 @@ export const ru = {
     offerLink: 'Открыть источник',
     offersHint: 'Добавьте свою цену, если на вашей базе дешевле.',
     totalLabel: 'Итого',
-    totalApprox: (n: number) => `≈ без ${n} позиций`,
+    totalApprox: (n: number) => `≈ без ${n} ${positionsGen(n)}`,
     csvExport: 'Экспорт CSV',
     needRegionTitle: 'Укажите ваш город',
     needRegionText: 'Цены зависят от региона — выберите город, и смета посчитается.',
