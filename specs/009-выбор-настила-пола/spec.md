@@ -240,7 +240,7 @@
       «Правило цен».
 - [x] `032_subfloor_choice.sql` и `SPEC.md` §2.4 (CHECK, варианты), §2.6
       (пример `config`) — одним коммитом.
-- [ ] `resolveConfig` и `config.test.ts` (`node --test`): валидный
+- [x] `resolveConfig` и `config.test.ts` (`node --test`): валидный
       вариант сохраняется; неизвестный → по умолчанию; лишняя группа
       отбрасывается; группа без `is_default` → первый по `sort`.
 - [ ] Смета витрины, `POST /api/purchases`, `POST /api/my/free-access`
