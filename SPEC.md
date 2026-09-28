@@ -484,8 +484,8 @@ create policy "projects_admin_write" on house_projects for all using (is_admin()
 create table config_options (
   id uuid primary key default gen_random_uuid(),
   project_id uuid not null references house_projects(id) on delete cascade,
-  group_key text not null check (group_key in ('lumber','roofing','finish_ext','finish_int','foundation')),
-  option_key text not null,            -- 'natural','dry','metal_tile','ondulin','proflist','imitation','siding','planken','vagonka','paint_ready','piles','mzlf','columnar'
+  group_key text not null check (group_key in ('lumber','roofing','finish_ext','finish_int','foundation','subfloor')), -- subfloor — «Настил пола» (032)
+  option_key text not null,            -- 'natural','dry','metal_tile','ondulin','proflist','imitation','siding','planken','vagonka','paint_ready','piles','mzlf','columnar','osb','plywood'
   label text not null,                 -- 'Сухая строганая доска'
   is_default boolean not null default false,
   sort smallint not null default 0,
@@ -696,7 +696,7 @@ create table purchases (
   provider text not null default 'manual' check (provider in ('manual','promo','yookassa')),
   amount_minor integer not null,
   currency char(3) not null,
-  config jsonb not null default '{}',  -- зафиксированная конфигурация на момент покупки: {"lumber":"dry","roofing":"metal_tile","finish_ext":"imitation","finish_int":"vagonka","foundation":"piles"}
+  config jsonb not null default '{}',  -- зафиксированная конфигурация на момент покупки: {"lumber":"dry","roofing":"metal_tile","finish_ext":"imitation","finish_int":"vagonka","foundation":"piles","subfloor":"osb"}
   region_id uuid null references regions(id),
   activated_at timestamptz null,
   created_at timestamptz not null default now(),
