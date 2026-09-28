@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { apiError, dbError, parseJson, validationError } from '@/lib/api/helpers';
+import { resolveConfig } from '@/lib/estimate/config';
 import { buildConsent } from '@/lib/legal/helpers';
 import { LEGAL_VERSION } from '@/lib/legal/texts';
 import { generatePurchaseCode } from '@/lib/payments/code';
@@ -39,17 +40,17 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (existing) return NextResponse.json({ data: { purchaseId: existing.id } });
 
-  // Дефолтная конфигурация проекта фиксируется в покупке (как при обычной покупке),
-  // рядом — согласие с версией текста и датой (edge 20, спека 006).
+  // Выбор с витрины фиксируется в покупке так же, как при обычной покупке
+  // (resolveConfig, спека 009): чего нет или что не из вариантов проекта — по
+  // умолчанию. Рядом — согласие с версией текста и датой (edge 20, спека 006).
   const { data: options } = await db
     .from('config_options')
-    .select('group_key, option_key, is_default')
+    .select('group_key, option_key, is_default, sort')
     .eq('project_id', project.id);
-  const defaults: Record<string, string> = {};
-  for (const o of options ?? []) {
-    if (o.is_default) defaults[o.group_key] = o.option_key;
-  }
-  const config = { ...defaults, consent: buildConsent(LEGAL_VERSION) };
+  const config = {
+    ...resolveConfig(parsed.data.config, options ?? []),
+    consent: buildConsent(LEGAL_VERSION),
+  };
 
   // insert через service_role: RLS разрешает пользователю только status='pending'.
   const service = createServiceClient();

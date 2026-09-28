@@ -43,7 +43,9 @@ async function fetchProject(slug: string) {
     .from('config_options')
     .select('*')
     .eq('project_id', project.id)
-    .order('sort');
+    .order('sort')
+    // при равном sort — как resolveConfig на сервере (спека 009)
+    .order('option_key');
   const configOptions: ConfigOptions = {};
   for (const o of options ?? []) {
     (configOptions[o.group_key] ??= []).push({

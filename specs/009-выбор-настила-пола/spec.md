@@ -243,7 +243,7 @@
 - [x] `resolveConfig` и `config.test.ts` (`node --test`): валидный
       вариант сохраняется; неизвестный → по умолчанию; лишняя группа
       отбрасывается; группа без `is_default` → первый по `sort`.
-- [ ] Смета витрины, `POST /api/purchases`, `POST /api/my/free-access`
+- [x] Смета витрины, `POST /api/purchases`, `POST /api/my/free-access`
       и `freeAccessSchema` — через `resolveConfig`.
 - [ ] Бесплатный эталон: `/buy` → `/my`; `free-projects.tsx`
       отправляет выбор с витрины.

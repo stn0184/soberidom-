@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { apiError } from '@/lib/api/helpers';
-import { calcEstimate, type EstimateConfig } from '@/lib/estimate/calc';
+import { calcEstimate } from '@/lib/estimate/calc';
+import { resolveConfig } from '@/lib/estimate/config';
 import { createClient } from '@/lib/supabase/server';
 import { ru } from '@/lib/i18n/ru';
 
@@ -10,10 +11,10 @@ import { ru } from '@/lib/i18n/ru';
 // а /api/projects/[slug] уже существует), но значение здесь — UUID проекта (SPEC 3.4).
 type Ctx = { params: Promise<{ slug: string }> };
 
-const CONFIG_GROUPS = ['lumber', 'roofing', 'finish_ext', 'finish_int', 'foundation'] as const;
-
 // SPEC 3.4: предварительная смета (публичный).
-// Ключи query валидируются по config_options проекта; неизвестная опция → 400.
+// Группы — из config_options проекта (спека 009), не из списка в коде: query-параметр
+// с именем группы проверяется по её вариантам (неизвестный → 400), пустой — как
+// отсутствующий, прочие параметры (regionId) не трогаются. Умолчания — resolveConfig.
 export async function GET(request: NextRequest, { params }: Ctx) {
   const { slug: id } = await params;
   const searchParams = request.nextUrl.searchParams;
@@ -26,24 +27,21 @@ export async function GET(request: NextRequest, { params }: Ctx) {
   const supabase = (await createClient()) as unknown as SupabaseClient;
   const { data: options } = await supabase
     .from('config_options')
-    .select('group_key, option_key, is_default')
+    .select('group_key, option_key, is_default, sort')
     .eq('project_id', id);
   if (!options || options.length === 0) {
     return apiError('NOT_FOUND', ru.api.projectNotFound);
   }
 
-  // Дефолты проекта, поверх — валидные значения из query.
-  const config: EstimateConfig = {};
-  for (const o of options) {
-    if (o.is_default) config[o.group_key] = o.option_key;
-  }
-  for (const group of CONFIG_GROUPS) {
+  const sent: Record<string, string> = {};
+  for (const group of new Set(options.map((o) => o.group_key))) {
     const value = searchParams.get(group);
-    if (value === null) continue;
+    if (!value) continue;
     const valid = options.some((o) => o.group_key === group && o.option_key === value);
     if (!valid) return apiError('VALIDATION_ERROR', ru.api.validation);
-    config[group] = value;
+    sent[group] = value;
   }
+  const config = resolveConfig(sent, options);
 
   const estimate = await calcEstimate(supabase, { projectId: id, config, regionId });
   if (!estimate) return apiError('VALIDATION_ERROR', ru.api.validation);

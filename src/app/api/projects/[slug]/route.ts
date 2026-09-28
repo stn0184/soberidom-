@@ -23,7 +23,9 @@ export async function GET(_request: Request, { params }: Ctx) {
     .from('config_options')
     .select('*')
     .eq('project_id', p.id)
-    .order('sort');
+    .order('sort')
+    // при равном sort — как resolveConfig на сервере (спека 009)
+    .order('option_key');
 
   // v1.6-кандидат: поля человеческих карточек (UX_PRINCIPLES) — аддитивно к SPEC 3.3.
   const configOptions: Record<
