@@ -245,7 +245,7 @@
       отбрасывается; группа без `is_default` → первый по `sort`.
 - [x] Смета витрины, `POST /api/purchases`, `POST /api/my/free-access`
       и `freeAccessSchema` — через `resolveConfig`.
-- [ ] Бесплатный эталон: `/buy` → `/my`; `free-projects.tsx`
+- [x] Бесплатный эталон: `/buy` → `/my`; `free-projects.tsx`
       отправляет выбор с витрины.
 - [ ] Админка: `subfloor` в zod-схеме и типе; «Настил пола» в
       `ru.project.groups`.

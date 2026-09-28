@@ -18,9 +18,26 @@ const t = ru.my;
 
 export type FreeProject = FreeAccessProject & { slug: string; coverImageUrl: string };
 
+// Выбор с витрины этого проекта (sessionStorage, ключ — как в buy-form): только строковые
+// значения. Нет или не разбирается — без config, сервер возьмёт варианты по умолчанию.
+function showcaseConfig(projectId: string): Record<string, string> | undefined {
+  try {
+    const raw = sessionStorage.getItem(`sd_config_${projectId}`);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined;
+    const config: Record<string, string> = {};
+    for (const [group, value] of Object.entries(parsed)) {
+      if (typeof value === 'string') config[group] = value;
+    }
+    return config;
+  } catch {
+    return undefined;
+  }
+}
+
 // Раздел «Попробуйте бесплатно» на /my (v1.5): is_free-проекты без покупки.
 // Кнопка открывает диалог согласия (спека 006); после согласия POST /api/my/free-access
-// создаёт нулевую активную покупку и уводит на хаб проекта.
+// создаёт нулевую активную покупку с выбором витрины и уводит на хаб проекта.
 export function FreeProjects({ projects }: { projects: FreeProject[] }) {
   const router = useRouter();
   const [selected, setSelected] = useState<FreeProject | null>(null);
@@ -31,7 +48,11 @@ export function FreeProjects({ projects }: { projects: FreeProject[] }) {
     try {
       const body = await apiFetch<{ data: { purchaseId: string } }>('/api/my/free-access', {
         method: 'POST',
-        body: JSON.stringify({ projectId, disclaimerAccepted: true }),
+        body: JSON.stringify({
+          projectId,
+          config: showcaseConfig(projectId),
+          disclaimerAccepted: true,
+        }),
       });
       router.push(`/my/${body.data.purchaseId}`);
     } catch (e) {

@@ -28,8 +28,9 @@ export default async function BuyPage({ params }: Ctx) {
     .eq('slug', slug)
     .maybeSingle();
   if (!project) notFound();
-  // Доступ к is_free-проектам открывается без покупки (кабинет — этап 5).
-  if (project.is_free) redirect(`/projects/${slug}`);
+  // Доступ к is_free-проектам открывается без покупки — в кабинете, разделом
+  // «Попробуйте бесплатно»; выбор с витрины туда приносит sessionStorage (спека 009).
+  if (project.is_free) redirect('/my');
 
   const { data: options } = await db
     .from('config_options')
