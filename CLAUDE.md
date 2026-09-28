@@ -93,8 +93,9 @@ src/app/         маршруты: (public) (auth) (quiz) (cabinet)/my admin api
 src/components/  ui/ (shadcn) · landing/ quiz/ three/ build/ estimate/ finance/ admin/
 src/lib/         supabase/ estimate/ foundation/ cutting/ delivery/ payments/ zod/ i18n/ api/ admin/ build/
 src/types/       database.ts — генерируется, руками не правится
-supabase/migrations/  001…031 (001–013 схема, 014–025 сиды Homesteader's Cabin,
-                      026–031 инструменты, источники цен, атрибуция, ведомость пола)
+supabase/migrations/  001…032 (001–013 схема, 014–025 сиды Homesteader's Cabin,
+                      026–032 инструменты, источники цен, атрибуция, ведомость пола,
+                      выбор настила)
 ```
 
 Зависимости сверху вниз: `app` → `components` → `lib` → `types`. `lib` не
